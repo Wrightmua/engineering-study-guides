@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EEC330 Digital Electronics — CA Study Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #d2a8ff;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --warn: #e3b341;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 400px; height: 200px;
+    background: radial-gradient(ellipse, rgba(88,166,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .course-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  header h1 {
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 14px 16px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 60px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 4px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+
+  .card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--warn);
+    margin: 14px 0 6px;
+  }
+
+  .card p { color: var(--text); margin-bottom: 8px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 12px 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #010409;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 10px 0;
+    color: #cdd9e5;
+  }
+
+  .hl-g { color: var(--accent2); }  /* green */
+  .hl-b { color: var(--accent); }   /* blue */
+  .hl-y { color: var(--warn); }     /* yellow */
+  .hl-p { color: var(--accent4); }  /* purple */
+  .hl-r { color: var(--accent3); }  /* red */
+
+  /* FORMULA BOX */
+  .formula {
+    background: rgba(88,166,255,0.07);
+    border: 1px solid rgba(88,166,255,0.25);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    margin: 10px 0;
+    color: #b3d1ff;
+  }
+
+  /* GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* TIPS */
+  .tip {
+    background: rgba(63,185,80,0.08);
+    border: 1px solid rgba(63,185,80,0.3);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13.5px;
+  }
+
+  .tip strong { color: var(--accent2); }
+
+  .warn-box {
+    background: rgba(227,179,65,0.08);
+    border: 1px solid rgba(227,179,65,0.35);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13.5px;
+  }
+
+  .warn-box strong { color: var(--warn); }
+
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 5px; }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li {
+    counter-increment: step;
+    padding: 8px 0 8px 36px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 8px;
+    width: 22px; height: 22px;
+    background: rgba(88,166,255,0.15);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    text-align: center;
+    padding-top: 1px;
+  }
+
+  /* KMAP VISUAL */
+  .kmap {
+    display: inline-grid;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    overflow: hidden;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+
+  .kmap-header {
+    background: rgba(88,166,255,0.15);
+    padding: 5px 14px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    grid-column: 1 / -1;
+  }
+
+  .km-row { display: contents; }
+  .km-cell {
+    padding: 8px 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .km-cell.one { color: var(--accent2); font-weight: 700; }
+  .km-cell.lbl { background: var(--surface2); color: var(--accent); font-size: 11px; }
+  .km-cell.x { color: var(--warn); }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin: 2px;
+  }
+  .tag-b { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+  .tag-g { background: rgba(63,185,80,0.12); color: var(--accent2); border: 1px solid rgba(63,185,80,0.3); }
+  .tag-r { background: rgba(247,129,102,0.12); color: var(--accent3); border: 1px solid rgba(247,129,102,0.3); }
+  .tag-y { background: rgba(227,179,65,0.12); color: var(--warn); border: 1px solid rgba(227,179,65,0.3); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="course-tag">EEC330 · Digital Electronics · University of Buea</div>
+  <h1>CA Complete Study Guide</h1>
+  <p>Chapters 1–4 · Number Systems, Boolean Algebra, Combinational Logic</p>
+</header>
+
+<nav>
+  <a href="#ch1">Chapter 1: Number Systems</a>
+  <a href="#ch2">Chapter 2: Codes</a>
+  <a href="#ch3">Chapter 3: Boolean Algebra</a>
+  <a href="#ch4">Chapter 4: Combinational Logic</a>
+  <a href="#practice">Practice Problems</a>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════
+     CHAPTER 1 — NUMBER SYSTEMS
+     ═══════════════════════════════════════════════ -->
+<div class="section" id="ch1">
+  <div class="section-header">
+    <span class="section-num">CH 01</span>
+    <h2>Number Systems &amp; Arithmetic</h2>
+  </div>
+
+  <div class="card">
+    <h3>The Four Number Systems</h3>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>System</th><th>Base</th><th>Digits Used</th><th>Example</th></tr>
+        <tr><td>Binary</td><td>2</td><td>0, 1</td><td>(1101)₂</td></tr>
+        <tr><td>Octal</td><td>8</td><td>0–7</td><td>(651.7)₈</td></tr>
+        <tr><td>Decimal</td><td>10</td><td>0–9</td><td>(57)₁₀</td></tr>
+        <tr><td>Hexadecimal</td><td>16</td><td>0–9, A–F</td><td>(EF9.B)₁₆</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Conversion Rules</h3>
+
+    <h4>Any Base → Decimal (Positional Notation)</h4>
+    <p>Multiply each digit by its positional weight (base^position) and sum.</p>
+    <div class="code-block">
+(11101.1011)₂ → Decimal<br>
+= 1×2⁴ + 1×2³ + 1×2² + 0×2¹ + 1×2⁰ + 1×2⁻¹ + 0×2⁻² + 1×2⁻³ + 1×2⁻⁴<br>
+= 16 + 8 + 4 + 0 + 1 + 0.5 + 0 + 0.125 + 0.0625<br>
+<span class="hl-g">= 29.6875</span><br><br>
+(EF9.B)₁₆ → Decimal<br>
+= 14×16² + 15×16¹ + 9×16⁰ + 11×16⁻¹<br>
+= 3584 + 240 + 9 + 0.6875 <span class="hl-g">= 3833.6875</span>
+    </div>
+
+    <h4>Decimal Integer → Any Base (Repeated Division)</h4>
+    <p>Divide by the target base repeatedly. Remainders, read <em>bottom-to-top</em>, give the result.</p>
+    <div class="code-block">
+(57)₁₀ → Binary:<br>
+57 ÷ 2 = 28 remainder <span class="hl-g">1</span> ← LSB<br>
+28 ÷ 2 = 14 remainder <span class="hl-g">0</span><br>
+14 ÷ 2 = 7  remainder <span class="hl-g">0</span><br>
+ 7 ÷ 2 = 3  remainder <span class="hl-g">1</span><br>
+ 3 ÷ 2 = 1  remainder <span class="hl-g">1</span><br>
+ 1 ÷ 2 = 0  remainder <span class="hl-g">1</span> ← MSB<br>
+Result (read upward): <span class="hl-y">(111001)₂</span>
+    </div>
+
+    <h4>Decimal Fraction → Any Base (Repeated Multiplication)</h4>
+    <p>Multiply by the base, collect the integer parts <em>top-to-bottom</em>.</p>
+    <div class="code-block">
+(0.79425)₁₀ → Binary:<br>
+0.79425 × 2 = <span class="hl-g">1</span>.5885  → 1<br>
+0.5885  × 2 = <span class="hl-g">1</span>.177   → 1<br>
+0.177   × 2 = <span class="hl-g">0</span>.354   → 0<br>
+0.354   × 2 = <span class="hl-g">0</span>.708   → 0<br>
+0.708   × 2 = <span class="hl-g">1</span>.416   → 1<br>
+Result: <span class="hl-y">(0.11001...)₂</span>
+    </div>
+
+    <h4>Binary ↔ Octal (groups of 3 bits)</h4>
+    <div class="code-block">
+(11011101111001.01111)₂ → Octal:<br>
+ <span class="hl-b">011</span> <span class="hl-g">011</span> <span class="hl-y">101</span> <span class="hl-p">111</span> <span class="hl-r">001</span> . <span class="hl-b">011</span> <span class="hl-g">110</span><br>
+  <span class="hl-b">3</span>    <span class="hl-g">3</span>    <span class="hl-y">5</span>    <span class="hl-p">7</span>    <span class="hl-r">1</span>  .  <span class="hl-b">3</span>    <span class="hl-g">6</span><br>
+= <span class="hl-y">(33571.36)₈</span>
+    </div>
+
+    <h4>Binary ↔ Hexadecimal (groups of 4 bits)</h4>
+    <div class="code-block">
+(1000110111001.01011)₂ → Hex:<br>
+<span class="hl-b">0001</span> <span class="hl-g">0001</span> <span class="hl-y">1011</span> <span class="hl-p">1001</span> . <span class="hl-r">0101</span> <span class="hl-b">1000</span><br>
+  <span class="hl-b">1</span>     <span class="hl-g">1</span>     <span class="hl-y">B</span>     <span class="hl-p">9</span>  .   <span class="hl-r">5</span>    <span class="hl-b">8</span><br>
+= <span class="hl-y">(11B9.58)₁₆</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Binary Arithmetic</h3>
+
+    <h4>Binary Addition Rules</h4>
+    <div class="formula">0+0=0 · 0+1=1 · 1+0=1 · 1+1=10 (sum=0, carry=1) · 1+1+1=11 (sum=1, carry=1)</div>
+
+    <h4>Octal Addition</h4>
+    <div class="code-block">
+(2735)₈ + (6741)₈:<br>
+  2 7 3 5<br>
++ 6 7 4 1<br>
+─────────<br>
+5+1=6, 3+4=7, 7+7=16→<span class="hl-g">6</span> carry 1, 2+6+1=9→<span class="hl-g">11</span>₈<br>
+= <span class="hl-y">(11676)₈</span>
+    </div>
+
+    <h4>Hexadecimal Addition</h4>
+    <div class="code-block">
+(E743)₁₆ + (F9C8)₁₆:<br>
+3+8=B, 4+C=10→<span class="hl-g">0</span> carry 1, 7+9+1=11→<span class="hl-g">1</span> carry 1, E+F+1=1E→<span class="hl-g">E</span> carry 1<br>
+= <span class="hl-y">(1E10B)₁₆</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Complements</h3>
+
+    <div class="grid2">
+      <div>
+        <h4>One's Complement</h4>
+        <p>Flip every bit (0→1, 1→0).</p>
+        <div class="code-block">
+1000001 → <span class="hl-g">0111110</span><br>
+0.0101  → <span class="hl-g">1.1010</span><br>
+101001.0100→<span class="hl-g">010110.1011</span>
+        </div>
+      </div>
+      <div>
+        <h4>Two's Complement</h4>
+        <p>One's complement + 1.</p>
+        <div class="code-block">
+1111110000:<br>
+1's: 0000001111<br>
++1:  <span class="hl-g">0000010000</span><br><br>
+0.010100:<br>
+1's: 1.101011<br>
++1:  <span class="hl-g">1.101100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><strong>Shortcut for 2's Complement:</strong> Start from the LSB; copy bits up to and including the first 1, then flip all remaining bits.</div>
+  </div>
+
+  <div class="card">
+    <h3>Sign-Magnitude &amp; IEEE 754 Floating Point</h3>
+
+    <h4>Sign-Magnitude</h4>
+    <p>MSB = sign bit (0 = positive, 1 = negative). Remaining bits = magnitude.</p>
+    <div class="code-block">
+(+74329)₁₀ → 74329₁₀ = (10010001001011001)₂<br>
+Sign-magnitude: <span class="hl-g">0</span>10010001001011001<br><br>
+(-74329)₁₀ → same magnitude, sign bit = 1:<br>
+Sign-magnitude: <span class="hl-r">1</span>10010001001011001
+    </div>
+
+    <h4>IEEE 754 Single Precision (32-bit)</h4>
+    <div class="formula">
+      [Sign 1 bit] [Exponent 8 bits, biased by 127] [Mantissa 23 bits]
+    </div>
+    <div class="code-block">
+(1253)₁₀ → Binary: 10011100101₂ = 1.0011100101 × 2¹⁰<br>
+Sign: <span class="hl-g">0</span><br>
+Exponent: 10+127=137 = (10001001)₂<br>
+Mantissa: 0011100101 padded to 23 bits → 00111001010000000000000<br>
+Result: <span class="hl-y">0 10001001 00111001010000000000000</span><br><br>
+(-1253)₁₀: same but sign = <span class="hl-r">1</span><br>
+(0.485)₁₀ → Binary: 0.01111100... = 1.111100... × 2⁻²<br>
+Exponent: -2+127=125 = (01111101)₂
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CHAPTER 2 — CODES
+     ═══════════════════════════════════════════════ -->
+<div class="section" id="ch2">
+  <div class="section-header">
+    <span class="section-num">CH 02</span>
+    <h2>Computer Codes</h2>
+  </div>
+
+  <div class="card">
+    <h3>BCD (Binary Coded Decimal)</h3>
+    <p>Each decimal digit is encoded separately into 4-bit binary.</p>
+    <div class="code-block">
+(674.027)₁₀ in BCD:<br>
+6   = <span class="hl-g">0110</span><br>
+7   = <span class="hl-g">0111</span><br>
+4   = <span class="hl-g">0100</span><br>
+.  = .<br>
+0   = <span class="hl-g">0000</span><br>
+2   = <span class="hl-g">0010</span><br>
+7   = <span class="hl-g">0111</span><br>
+BCD = <span class="hl-y">0110 0111 0100 . 0000 0010 0111</span>
+    </div>
+    <div class="warn-box"><strong>⚠ Note:</strong> BCD digits only go 0000–1001 (0–9). Codes 1010–1111 are invalid in BCD.</div>
+  </div>
+
+  <div class="card">
+    <h3>Excess-3 Code</h3>
+    <p>Excess-3 = BCD + 0011. Also called XS-3. Self-complementing code.</p>
+    <div class="code-block">
+(674.027)₁₀ in Excess-3:<br>
+6+3=9 → <span class="hl-g">1001</span><br>
+7+3=10→ <span class="hl-g">1010</span><br>
+4+3=7 → <span class="hl-g">0111</span><br>
+0+3=3 → <span class="hl-g">0011</span><br>
+2+3=5 → <span class="hl-g">0101</span><br>
+7+3=10→ <span class="hl-g">1010</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Gray Code</h3>
+    <p>Adjacent values differ by exactly 1 bit. Used to avoid errors in mechanical encoders.</p>
+
+    <h4>Decimal/Binary → Gray</h4>
+    <div class="code-block">
+MSB of Gray = MSB of Binary<br>
+Each next Gray bit = XOR of that Binary bit with the previous Binary bit<br><br>
+Binary: <span class="hl-b">1 0 0 1</span><br>
+Gray:   <span class="hl-g">1</span> (1⊕0)=<span class="hl-g">1</span> (0⊕0)=<span class="hl-g">0</span> (0⊕1)=<span class="hl-g">1</span>  → <span class="hl-y">1101</span>
+    </div>
+
+    <h4>Gray → Binary</h4>
+    <div class="code-block">
+1. MSB of Binary = MSB of Gray<br>
+2. Each Binary bit = XOR of current Gray bit with PREVIOUS Binary bit<br><br>
+Gray:   <span class="hl-b">1 1 1 0 1 0 1 1</span><br>
+Binary: <span class="hl-g">1</span>(1⊕1)=<span class="hl-g">0</span>(1⊕0)=<span class="hl-g">1</span>(0⊕1)=<span class="hl-g">1</span>(0⊕1)=<span class="hl-g">0</span>(1⊕0)=<span class="hl-g">1</span>(1⊕1)=<span class="hl-g">0</span>
+= <span class="hl-y">10110010</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2*421 Code</h3>
+    <p>A weighted code using weights 2, 4, 2, 1. Note: some digits have two representations — use the self-complementing form.</p>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Digit</th><th>2421</th><th>Digit</th><th>2421</th></tr>
+        <tr><td>0</td><td>0000</td><td>5</td><td>1011</td></tr>
+        <tr><td>1</td><td>0001</td><td>6</td><td>1100</td></tr>
+        <tr><td>2</td><td>0010</td><td>7</td><td>1101</td></tr>
+        <tr><td>3</td><td>0011</td><td>8</td><td>1110</td></tr>
+        <tr><td>4</td><td>0100</td><td>9</td><td>1111</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CHAPTER 3 — BOOLEAN ALGEBRA
+     ═══════════════════════════════════════════════ -->
+<div class="section" id="ch3">
+  <div class="section-header">
+    <span class="section-num">CH 03</span>
+    <h2>Boolean Algebra &amp; Logic Simplification</h2>
+  </div>
+
+  <div class="card">
+    <h3>Logic Gates — Quick Reference</h3>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Gate</th><th>Symbol</th><th>Expression</th><th>Rule</th></tr>
+        <tr><td>AND</td><td>∩</td><td>F = AB</td><td>Output HIGH only if ALL inputs HIGH</td></tr>
+        <tr><td>OR</td><td>∪</td><td>F = A+B</td><td>Output HIGH if ANY input HIGH</td></tr>
+        <tr><td>NOT</td><td>○</td><td>F = Ā</td><td>Inverts the input</td></tr>
+        <tr><td>NAND</td><td>AND+○</td><td>F = <span style="text-decoration:overline">AB</span></td><td>Complement of AND</td></tr>
+        <tr><td>NOR</td><td>OR+○</td><td>F = <span style="text-decoration:overline">A+B</span></td><td>Complement of OR</td></tr>
+        <tr><td>XOR</td><td>=1</td><td>F = A⊕B</td><td>HIGH only when inputs differ</td></tr>
+        <tr><td>XNOR</td><td>=1○</td><td>F = A⊙B</td><td>Complement of XOR</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Boolean Laws &amp; Theorems</h3>
+    <div class="grid2">
+      <div>
+        <h4>Basic Laws</h4>
+        <div class="code-block">
+<span class="hl-b">Commutative:</span>
+  A+B = B+A
+  AB  = BA
+
+<span class="hl-b">Associative:</span>
+  A+(B+C) = (A+B)+C
+  A(BC) = (AB)C
+
+<span class="hl-b">Distributive:</span>
+  A(B+C) = AB+AC
+  A+BC = (A+B)(A+C)
+        </div>
+      </div>
+      <div>
+        <h4>Identity / Null / Complement</h4>
+        <div class="code-block">
+<span class="hl-g">Identity:</span>
+  A+0 = A,  A·1 = A
+
+<span class="hl-g">Null:</span>
+  A+1 = 1,  A·0 = 0
+
+<span class="hl-g">Complement:</span>
+  A+Ā = 1,  A·Ā = 0
+
+<span class="hl-g">Idempotent:</span>
+  A+A = A,  A·A = A
+
+<span class="hl-g">Involution:</span>
+  Ā̄ = A (double complement)
+        </div>
+      </div>
+    </div>
+    <h4>DeMorgan's Theorems (⭐ Very Important)</h4>
+    <div class="formula">
+      <span class="hl-r">‾(AB) = Ā + B̄</span> &nbsp;&nbsp; (NAND = OR with inverted inputs)<br>
+      <span class="hl-r">‾(A+B) = Ā · B̄</span> &nbsp; (NOR = AND with inverted inputs)
+    </div>
+    <div class="tip"><strong>Memory trick:</strong> Break the bar, change the sign (AND↔OR).</div>
+
+    <h4>Absorption &amp; Other Useful Rules</h4>
+    <div class="code-block">
+A + AB = A           (Absorption)
+A(A+B) = A           (Absorption)
+A + ĀB = A + B       (Simplification)
+AB + ĀC + BC = AB + ĀC   (Consensus — BC is redundant)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>SOP and POS Forms</h3>
+
+    <h4>Standard SOP (Sum of Minterms)</h4>
+    <p>Each minterm = product where ALL variables appear (complemented or not). Output = 1 for those rows.</p>
+    <div class="code-block">
+F = Σm(2,3,5,6,7) means F=1 for minterms 2,3,5,6,7<br>
+Minterm 5 (101) → A·B̄·C<br>
+Minterm 6 (110) → A·B·C̄<br>
+SOP = ĀBC̄ + ĀBC + AB̄C + ABC̄ + ABC
+    </div>
+
+    <h4>Standard POS (Product of Maxterms)</h4>
+    <p>Each maxterm = sum where ALL variables appear. Output = 0 for those rows.</p>
+    <div class="code-block">
+F = ΠM(0,1,4) means F=0 for rows 0,1,4<br>
+Maxterm 0 (000) → A+B+C<br>
+Maxterm 1 (001) → A+B+C̄<br>
+Maxterm 4 (100) → Ā+B+C
+    </div>
+
+    <h4>Converting Between Minterm and Maxterm Notation</h4>
+    <div class="tip"><strong>Rule:</strong> The minterms NOT in F's SOP are the maxterms of F's POS.<br>
+    F = Σm(0,1,2,5,7) for 3 variables → F = ΠM(3,4,6)</div>
+  </div>
+
+  <div class="card">
+    <h3>Karnaugh Map (K-Map) Simplification ⭐</h3>
+    <p>K-maps give the minimum SOP or POS without long algebra. The key is proper grouping.</p>
+
+    <h4>K-map cell ordering (Gray code order)</h4>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th colspan="2">3-Variable (2×4)</th><th colspan="2">4-Variable (4×4)</th></tr>
+        <tr><td colspan="2" style="color:var(--muted);font-size:12px">Rows: A | Cols: BC (00,01,11,10)</td>
+            <td colspan="2" style="color:var(--muted);font-size:12px">Rows: AB (00,01,11,10) | Cols: CD (00,01,11,10)</td></tr>
+      </table>
+    </div>
+
+    <h4>Grouping Rules</h4>
+    <ol class="steps">
+      <li>Groups must contain 1, 2, 4, 8, 16... cells (powers of 2).</li>
+      <li>All cells in a group must contain 1s (for SOP) or 0s (for POS).</li>
+      <li>Groups must be rectangular (including wrap-around at edges).</li>
+      <li>Make groups as large as possible, and as few as possible.</li>
+      <li>Every 1 must be covered by at least one group.</li>
+      <li>Don't-care (×) cells can be included if they help enlarge a group.</li>
+    </ol>
+
+    <h4>Reading the Minimum SOP Term from a Group</h4>
+    <p>Keep variables that are CONSTANT within the group. Drop variables that change.</p>
+
+    <div class="code-block">
+Example: F(A,B,C) = Σm(0,1,2,5,6)<br><br>
+     BC: 00  01  11  10<br>
+A=0:  <span class="hl-g">1</span>   <span class="hl-g">1</span>   0   <span class="hl-g">1</span><br>
+A=1:  0   <span class="hl-g">1</span>   0   <span class="hl-g">1</span><br><br>
+Group 1: m0,m1,m2 (top row, left 3) → B constant=0, C changes → <span class="hl-g">Ā·B̄... </span>
+actually: m0(00),m1(01) → A=0,B=0 → ĀB̄
+Group 2: m1,m5 (col 01) → B=0,C=1,A changes → B̄C
+Group 3: m2,m6 (col 10) → B=1,C=0,A changes → BC̄<br>
+Min SOP = <span class="hl-y">ĀB̄ + B̄C + BC̄</span>
+    </div>
+
+    <h4>K-map POS Minimization</h4>
+    <p>Group the 0s instead. Each group gives a sum term. Variables constant across the group appear (uncomplemented if they were 0, complemented if they were 1).</p>
+
+    <h4>Don't-Care Terms</h4>
+    <div class="tip"><strong>Strategy:</strong> Include don't-cares (×) in groups ONLY if they help create a larger group. Never leave them isolated as a single group.</div>
+  </div>
+
+  <div class="card">
+    <h3>Boolean Algebra Simplification Steps</h3>
+    <ol class="steps">
+      <li>Write the Boolean expression for the circuit or truth table.</li>
+      <li>Apply laws (factoring, absorption, DeMorgan's) to reduce terms.</li>
+      <li>Use consensus: AB + ĀC + BC = AB + ĀC (remove BC).</li>
+      <li>Verify with a truth table or K-map.</li>
+    </ol>
+    <div class="code-block">
+Example: F = AB + AC + ĀB̄C<br>
+= A(B+C) + ĀB̄C<br>
+= ... apply simplification ...<br>
+Use K-map for guaranteed minimum result.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CHAPTER 4 — COMBINATIONAL LOGIC
+     ═══════════════════════════════════════════════ -->
+<div class="section" id="ch4">
+  <div class="section-header">
+    <span class="section-num">CH 04</span>
+    <h2>Combinational Logic Circuits</h2>
+  </div>
+
+  <div class="card">
+    <h3>Combinational vs. Sequential</h3>
+    <div class="grid2">
+      <div style="border:1px solid rgba(63,185,80,0.3);border-radius:6px;padding:14px">
+        <div style="color:var(--accent2);font-weight:700;margin-bottom:8px">Combinational</div>
+        <ul>
+          <li>Output depends ONLY on current inputs</li>
+          <li>No memory/storage</li>
+          <li>No feedback path</li>
+          <li>Examples: adders, encoders, decoders, MUX</li>
+        </ul>
+      </div>
+      <div style="border:1px solid rgba(247,129,102,0.3);border-radius:6px;padding:14px">
+        <div style="color:var(--accent3);font-weight:700;margin-bottom:8px">Sequential</div>
+        <ul>
+          <li>Output depends on current inputs AND past state</li>
+          <li>Has memory (flip-flops)</li>
+          <li>Examples: counters, registers, FSMs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Design Procedure for Combinational Circuits</h3>
+    <ol class="steps">
+      <li><strong>Logical Abstraction:</strong> Determine inputs, outputs, and assign logic values.</li>
+      <li><strong>Truth Table:</strong> Define output for every possible input combination.</li>
+      <li><strong>Boolean Expression:</strong> Write SOP or POS; simplify with K-map.</li>
+      <li><strong>Logic Diagram:</strong> Draw using available gates; verify correctness.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Half-Adder</h3>
+    <p>Adds two 1-bit inputs A₀ and B₀. Produces Sum (S₀) and Carry-out (C₀).</p>
+    <div class="grid2">
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>A₀</th><th>B₀</th><th>C₀</th><th>S₀</th></tr>
+          <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        </table>
+      </div>
+      <div class="formula">
+        S₀ = A₀ ⊕ B₀<br>
+        C₀ = A₀ · B₀<br><br>
+        <span style="color:var(--muted);font-size:12px">Implemented with: 1 XOR gate + 1 AND gate</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Full-Adder</h3>
+    <p>Adds three bits: Aᵢ, Bᵢ, and carry-in Cᵢ₋₁. Outputs Sum Sᵢ and Carry-out Cᵢ.</p>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Aᵢ</th><th>Bᵢ</th><th>Cᵢ₋₁</th><th>Cᵢ</th><th>Sᵢ</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+      </table>
+    </div>
+    <div class="formula">
+      Sᵢ = Σm(1,2,4,7) = Aᵢ ⊕ Bᵢ ⊕ Cᵢ₋₁<br>
+      Cᵢ = Σm(3,5,6,7) = AᵢBᵢ + AᵢCᵢ₋₁ + BᵢCᵢ₋₁
+    </div>
+    <div class="tip"><strong>Key fact:</strong> A full-adder = 2 half-adders + 1 OR gate.</div>
+  </div>
+
+  <div class="card">
+    <h3>Encoders</h3>
+    <p>Converts 2ⁿ inputs into an n-bit binary code. Only one input is active at a time.</p>
+
+    <h4>4-to-2 Binary Encoder (Example)</h4>
+    <p>4 inputs (S₀–S₃) → 2-bit output (D₁D₀). Active-LOW inputs (0 = pressed).</p>
+    <div class="code-block">
+When S₀ active (0): D₁D₀ = <span class="hl-g">00</span><br>
+When S₁ active (0): D₁D₀ = <span class="hl-g">01</span><br>
+When S₂ active (0): D₁D₀ = <span class="hl-g">10</span><br>
+When S₃ active (0): D₁D₀ = <span class="hl-g">11</span><br><br>
+Logic (simplified with K-map):<br>
+D₀ = S̄₁·S̄₃ or simplified expression from K-map<br>
+D₁ = S̄₂·S̄₃ or simplified expression from K-map<br>
+INT₀ = <span style="text-decoration:overline">S₀·S₁·S₂·S₃</span> (flag: 1 when any key pressed)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Decoders</h3>
+    <p>Reverses encoding. n-bit input → up to 2ⁿ outputs. Exactly one output activates per input code.</p>
+
+    <h4>2-to-4 Decoder (Active-LOW outputs)</h4>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>S̄</th><th>A</th><th>B</th><th>Ȳ₀</th><th>Ȳ₁</th><th>Ȳ₂</th><th>Ȳ₃</th></tr>
+        <tr><td>1</td><td>×</td><td>×</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+      </table>
+    </div>
+    <div class="formula">
+      Ȳ₀ = ‾(S̄·Ā·B̄) &nbsp; Ȳ₁ = ‾(S̄·Ā·B) &nbsp; Ȳ₂ = ‾(S̄·A·B̄) &nbsp; Ȳ₃ = ‾(S̄·A·B)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Multiplexers (MUX) &amp; Demultiplexers (DEMUX)</h3>
+
+    <div class="grid2">
+      <div>
+        <h4>4-to-1 MUX</h4>
+        <ul>
+          <li>4 data inputs (D₀–D₃)</li>
+          <li>2 select inputs (A₁, A₀)</li>
+          <li>1 output Y</li>
+        </ul>
+        <div class="formula" style="font-size:12px">
+          Y = Ā₁Ā₀D₀ + Ā₁A₀D₁ + A₁Ā₀D₂ + A₁A₀D₃
+        </div>
+        <p style="font-size:13px;color:var(--muted)">Select inputs route one data input to the output.</p>
+      </div>
+      <div>
+        <h4>1-to-4 DEMUX</h4>
+        <ul>
+          <li>1 data input</li>
+          <li>2 select inputs</li>
+          <li>4 outputs</li>
+        </ul>
+        <p style="font-size:13px;color:var(--muted)">Routes the single input to one of 4 outputs based on select. Reverse of MUX.</p>
+        <div class="tip" style="font-size:12px"><strong>Note:</strong> A decoder with an enable = a DEMUX.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Analysis of Combinational Circuits</h3>
+    <ol class="steps">
+      <li>Label all gate outputs with intermediate variables.</li>
+      <li>Write Boolean expressions for each intermediate output, working forward from inputs to outputs.</li>
+      <li>Simplify the final output expression using Boolean algebra or K-map.</li>
+      <li>Build the truth table from the simplified expression.</li>
+      <li>Determine the logic function (e.g., comparator, parity checker).</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PRACTICE PROBLEMS
+     ═══════════════════════════════════════════════ -->
+<div class="section" id="practice">
+  <div class="section-header">
+    <span class="section-num">PRACTICE</span>
+    <h2>Key Practice Problems for Your CA</h2>
+  </div>
+
+  <div class="card">
+    <h3>Number System Conversions (Tutorial 1)</h3>
+    <div class="code-block">
+<span class="hl-b">1.</span> (11101.1011)₂ → Decimal<br>
+   = 16+8+4+1 + 0.5+0.125+0.0625 = <span class="hl-g">29.6875</span><br><br>
+<span class="hl-b">2.</span> (651.7)₈ → Decimal<br>
+   = 6×64 + 5×8 + 1×1 + 7×(1/8) = 384+40+1+0.875 = <span class="hl-g">425.875</span><br><br>
+<span class="hl-b">3.</span> (57)₁₀ → Binary<br>
+   = <span class="hl-g">(111001)₂</span><br><br>
+<span class="hl-b">4.</span> (543.815)₁₀ → Octal<br>
+   Integer 543: 543÷8=67R7, 67÷8=8R3, 8÷8=1R0, 1÷8=0R1 → 1037<br>
+   Fraction .815×8=6.52, .52×8=4.16, .16×8=1.28 → .641<br>
+   = <span class="hl-g">(1037.641...)₈</span><br><br>
+<span class="hl-b">5.</span> Add (110010010)₂ + (1011100)₂<br>
+   = 110010010 + 001011100 = <span class="hl-g">(111101110)₂</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>K-Map Examples (Tutorial 2 — from Tutorials.pdf)</h3>
+    <div class="code-block">
+<span class="hl-b">3.15(1)</span> F(A,B,C) = Σm(0,1,2,5,6)<br><br>
+     BC: 00  01  11  10<br>
+A=0: <span class="hl-g">1</span>   <span class="hl-g">1</span>   0   <span class="hl-g">1</span><br>
+A=1: 0   <span class="hl-g">1</span>   0   <span class="hl-g">1</span><br><br>
+Groups:<br>
+• m0,m1: Ā·B̄ (wrap covers m0,m2 too if... check adjacency)<br>
+• Easier: m0,m1,m4→no. Group {m0,m2}: A=0, C=0 → Ā·C̄<br>
+• Group {m1,m5}: C=1, B=0 → B̄·C<br>
+• Group {m2,m6}: B=1, C=0 → B·C̄<br>
+Min SOP = <span class="hl-y">ĀC̄ + B̄C + BC̄</span><br><br>
+<span class="hl-b">3.18(1)</span> F(A,B,C,D) = Σm(3,6,8,9,11,12) + Σd(0,1,2,13,14,15)<br>
+Draw 4-var K-map, include ×s in groups to maximize.<br>
+Typical result: <span class="hl-y">F = A·D + B̄·C (verify on map)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Boolean Algebra Simplification Examples</h3>
+    <div class="code-block">
+<span class="hl-b">3.7(1)</span> Prove: A + BC = (A+B)(A+C)<br>
+RHS = A·A + A·C + B·A + B·C<br>
+    = A + AC + AB + BC<br>
+    = A(1+C+B) + BC<br>
+    = A + BC = LHS ✓<br><br>
+<span class="hl-b">3.8(1)</span> Simplify: F = AB + AC + ĀB + BC̄<br>
+= A(B+C) + Ā·B + BC̄<br>
+= (A+Ā·B) + AC + BC̄<br>
+= (A+B)(by simplification rule) + AC + BC̄<br>
+Hint: use K-map for guaranteed result.<br><br>
+<span class="hl-b">3.9(4)</span> F = AB̄ + ĀC + B̄C<br>
+= AB̄ + ĀC + B̄C (Consensus: B̄C redundant if AB̄+ĀC covers it)<br>
+Check: all minterms of B̄C covered by AB̄ or ĀC?<br>
+→ F = <span class="hl-y">AB̄ + ĀC</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>SOP ↔ POS Conversion</h3>
+    <div class="code-block">
+<span class="hl-b">3.13(1)</span> F(A,B,C) = Σm(0,1,2,5,7)<br>
+Missing minterms (where F=0): 3,4,6<br>
+POS = ΠM(3,4,6)<br>
+M₃ = A+B̄+C (row 011, flip each bit)<br>
+M₄ = Ā+B+C<br>
+M₆ = Ā+B̄+C<br>
+F = <span class="hl-y">(A+B̄+C)(Ā+B+C)(Ā+B̄+C)</span><br><br>
+<span class="hl-b">3.14(1)</span> F(A,B,C) = ΠM(3,6,7)<br>
+Maxterms 3(011),6(110),7(111) → F=0 there<br>
+Minterms = everything else: Σm(0,1,2,4,5)<br>
+F = <span class="hl-y">Σm(0,1,2,4,5)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Half &amp; Full Adder — Worked Design</h3>
+    <div class="code-block">
+<span class="hl-b">Design a 4-bit ripple carry adder:</span><br>
+• Bit 0: Half Adder → S₀ = A₀⊕B₀, C₀ = A₀B₀<br>
+• Bit 1: Full Adder → S₁ = A₁⊕B₁⊕C₀, C₁ = A₁B₁+A₁C₀+B₁C₀<br>
+• Bit 2: Full Adder → S₂ = A₂⊕B₂⊕C₁, C₂ = ...<br>
+• Bit 3: Full Adder → S₃ = A₃⊕B₃⊕C₂, C₃ = carry-out<br><br>
+<span class="hl-b">Verify:</span> Add (1011)₂ + (0110)₂<br>
+= 11 + 6 = 17 = (10001)₂ ✓
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>⚠ CA Exam Tips:</strong>
+    <ul style="margin-top:8px">
+      <li>Always show your <strong>K-map</strong> with groups clearly circled and labeled.</li>
+      <li>For conversions, show <strong>each division/multiplication step</strong> — partial marks are given.</li>
+      <li>When drawing truth tables, include ALL 2ⁿ rows (n = number of input variables).</li>
+      <li>For don't-cares, always state which you're treating as 1 and why.</li>
+      <li>DeMorgan's theorem is frequently tested — practice applying it in both directions.</li>
+      <li>For adders, always write both the <strong>Sum</strong> and <strong>Carry</strong> expressions.</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+  // Smooth scroll for nav links
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

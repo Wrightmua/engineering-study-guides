@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CEC302 :: OOP Resit Console</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #14171c;
+    --panel: #1c2028;
+    --panel-2: #232833;
+    --line: #2e3440;
+    --text: #dfe3ea;
+    --text-dim: #8890a0;
+    --java: #e8a33d;      /* coffee amber */
+    --java-dim: #6b4f26;
+    --mint: #6fc9a8;      /* success / valid */
+    --rose: #e2686b;      /* error / invalid */
+    --sky: #6fa8dc;
+    font-size: 16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, #1a2530 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    padding:0 0 80px 0;
+  }
+  code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:48px 24px 28px;
+    max-width:920px;
+    margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  .hero .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--java);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .hero .tag::before{
+    content:'●';
+    color:var(--mint);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .hero h1{
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(28px,5vw,42px);
+    font-weight:800;
+    margin:10px 0 6px;
+    letter-spacing:-.01em;
+  }
+  .hero h1 span{color:var(--java);}
+  .hero p.sub{color:var(--text-dim); font-size:15px; max-width:60ch; margin:0;}
+
+  .console-line{
+    margin-top:22px;
+    background:#0f1216;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--mint);
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .console-line .prompt{color:var(--text-dim);}
+  #typedOut::after{content:'▌'; animation: blink 1s step-end infinite; color:var(--java);}
+  @keyframes blink{50%{opacity:0;}}
+
+  /* ---------- NAV ---------- */
+  .tabs{
+    position:sticky; top:0; z-index:10;
+    background:rgba(20,23,28,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    gap:2px;
+    max-width:920px;
+    margin:0 auto;
+    padding:0 24px;
+    overflow-x:auto;
+  }
+  .tab-btn{
+    background:none;border:none;
+    color:var(--text-dim);
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    padding:16px 14px 13px;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+    transition:.15s;
+  }
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{color:var(--java); border-bottom-color:var(--java);}
+
+  .wrap{max-width:920px;margin:0 auto;padding:32px 24px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .marks{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--bg);
+    background:var(--java);
+    padding:2px 8px;
+    border-radius:20px;
+    font-weight:700;
+    margin-left:8px;
+  }
+
+  /* ---------- ACCORDION ---------- */
+  .qitem{
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:12px;
+    background:var(--panel);
+    overflow:hidden;
+  }
+  .qhead{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 18px;
+    cursor:pointer;
+    gap:12px;
+  }
+  .qhead:hover{background:var(--panel-2);}
+  .qhead .qtext{font-size:14.5px; font-weight:500;}
+  .qhead .chev{color:var(--java); font-family:'JetBrains Mono',monospace; transition:.2s; flex-shrink:0;}
+  .qitem.open .chev{transform:rotate(90deg);}
+  .qbody{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+    border-top:1px solid transparent;
+  }
+  .qitem.open .qbody{
+    max-height:2400px;
+    border-top:1px solid var(--line);
+  }
+  .qbody-inner{padding:16px 18px 20px; font-size:14.5px; color:var(--text);}
+  .qbody-inner p{margin:0 0 10px;}
+  .qbody-inner ul{margin:6px 0 10px; padding-left:20px;}
+  .qbody-inner li{margin-bottom:4px;}
+
+  pre.code{
+    background:#0f1216;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+    overflow-x:auto;
+    font-size:13px;
+    line-height:1.6;
+    margin:10px 0;
+  }
+  .kw{color:var(--java);} .str{color:var(--mint);} .num{color:var(--sky);} .cm{color:var(--text-dim); font-style:italic;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; font-weight:700;
+    padding:3px 9px; border-radius:6px;
+    margin:2px 6px 6px 0;
+  }
+  .badge.ok{background:rgba(111,201,168,.12); color:var(--mint); border:1px solid rgba(111,201,168,.35);}
+  .badge.err{background:rgba(226,104,107,.12); color:var(--rose); border:1px solid rgba(226,104,107,.35);}
+
+  .out{
+    background:#0f1216; border:1px solid var(--mint); border-radius:8px;
+    padding:12px 16px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--mint);
+    margin-top:10px; white-space:pre-line;
+  }
+
+  h2.sectitle{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px; margin:0 0 4px;
+  }
+  p.secsub{color:var(--text-dim); font-size:14px; margin:0 0 22px;}
+
+  /* ---------- FLASHCARDS ---------- */
+  .deck-controls{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .deck-controls button{
+    background:var(--panel-2); color:var(--text); border:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    padding:8px 14px; border-radius:7px; cursor:pointer;
+  }
+  .deck-controls button:hover{border-color:var(--java); color:var(--java);}
+  .deck-count{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-dim);}
+
+  .card-stage{perspective:1400px; height:260px; margin-bottom:8px;}
+  .card{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+  }
+  .card.flipped{transform:rotateY(180deg);}
+  .face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    border-radius:14px;
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:28px;
+    font-size:16px;
+  }
+  .face.front{background:linear-gradient(160deg,var(--panel),var(--panel-2)); color:var(--text);}
+  .face.back{
+    background:linear-gradient(160deg,#26201a,#1c2028);
+    color:var(--java);
+    transform:rotateY(180deg);
+    font-family:'JetBrains Mono',monospace;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  .face .eyebrow{
+    position:absolute; top:14px; left:18px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
+    color:var(--text-dim); text-transform:uppercase;
+  }
+  .tapme{position:absolute; bottom:14px; right:18px; font-size:11px; color:var(--text-dim); font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+  .score-pill{
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:20px;
+    padding:6px 14px;
+  }
+  .score-pill b{color:var(--java);}
+  .quiz-q{font-size:15px; font-weight:600; margin-bottom:14px;}
+  .opt{
+    display:block; width:100%; text-align:left;
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:12px 16px; border-radius:8px; margin-bottom:9px;
+    cursor:pointer; font-size:14px; font-family:'Inter',sans-serif;
+    transition:.15s;
+  }
+  .opt:hover{border-color:var(--java);}
+  .opt.correct{border-color:var(--mint); background:rgba(111,201,168,.1); color:var(--mint);}
+  .opt.wrong{border-color:var(--rose); background:rgba(226,104,107,.1); color:var(--rose);}
+  .opt[disabled]{cursor:default;}
+  .quiz-nav{display:flex; justify-content:space-between; margin-top:20px;}
+  .quiz-nav button{
+    background:var(--java); color:#1a1206; border:none; font-weight:700;
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    padding:10px 18px; border-radius:8px; cursor:pointer;
+  }
+  .quiz-nav button:disabled{opacity:.35; cursor:not-allowed;}
+  .quiz-nav button.ghost{background:none; border:1px solid var(--line); color:var(--text-dim);}
+  .quiz-done{text-align:center; padding:40px 10px;}
+  .quiz-done .big{font-family:'JetBrains Mono',monospace; font-size:42px; color:var(--java); font-weight:800;}
+
+  ::-webkit-scrollbar{height:8px; width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">cec302 &middot; object-oriented programming &middot; resit 2025/2026</div>
+  <h1>Study<span>Console</span>.java</h1>
+  <p class="sub">Every question from your resit paper, worked and explained — plus flashcards and a scored quiz so you can drill it until it's automatic.</p>
+  <div class="console-line"><span class="prompt">$ </span><span id="typedOut"></span></div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="q1">Q1 · General Knowledge</button>
+  <button class="tab-btn" data-tab="q2">Q2 · Classes & Objects</button>
+  <button class="tab-btn" data-tab="q3">Q3 · Inheritance & Poly</button>
+  <button class="tab-btn" data-tab="cards">Flashcards</button>
+  <button class="tab-btn" data-tab="quiz">Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ Q1 ============ -->
+  <div class="panel active" id="panel-q1">
+    <h2 class="sectitle">General Knowledge <span class="marks">28 marks</span></h2>
+    <p class="secsub">Compilation rules, naming, classes vs objects, constructors, interfaces.</p>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">a) File name for <code>public class InventoryManager {}</code></span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>Must be <code>InventoryManager.java</code> — exactly matching, case included. A public class must live in a file named after itself.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">b) Which of the three declarations causes a compile error?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><span class="badge ok">VALID</span> <code>double annual_Salary = 50000.0;</code> — underscores are legal.</p>
+        <p><span class="badge err">ERROR</span> <code>int 2ndPlaceWinner = 14;</code> — identifiers can never <b>start</b> with a digit.</p>
+        <p><span class="badge ok">VALID</span> <code>String $userToken = "A1BF3";</code> — <code>$</code> is a legal first character.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">c) Naming convention for Classes vs Methods/Variables</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><b>Classes</b> → UpperCamelCase (PascalCase): <code>BankAccount</code>, <code>ShapeApp</code></p>
+        <p><b>Methods / variables</b> → lowerCamelCase: <code>calculateArea()</code>, <code>accountBalance</code></p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">d) Class vs Object — structural relationship</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>A <b>class</b> is the blueprint (fields + methods, no memory for data). An <b>object</b> is an instance created with <code>new</code> — real memory, real values.</p>
+        <p>If no constructor is written, Java <b>automatically inserts a default no-arg constructor</b> that sets fields to defaults (0 / false / null).</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">e) Primary role of a constructor</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>To <b>initialize an object's state</b> the instant it's created — assigning starting field values, typically from parameters. Same auto-generation rule as (d) applies if none is written.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">f) Why no multiple class inheritance — and how interfaces solve it</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>Extending two classes creates the <b>diamond problem</b>: ambiguity if both parents define the same member. Interfaces avoid this because they only declare method signatures — no conflicting state.</p>
+        <pre class="code"><span class="kw">class</span> Sample <span class="kw">implements</span> InterfaceA, InterfaceB { }</pre>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">g) Obligation created by <code>public void processData();</code> in an interface</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>The implementing class <b>must override it with a matching signature</b>. If it doesn't, and isn't itself declared <code>abstract</code>, the code <b>fails to compile</b>.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ Q2 ============ -->
+  <div class="panel" id="panel-q2">
+    <h2 class="sectitle">Classes and Objects <span class="marks">17 marks</span></h2>
+    <p class="secsub"><code>this</code>, field hiding, and tracing the BankApplication array logic.</p>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">a) Why is <code>this</code> necessary on lines 5–6 of the Student constructor?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>The constructor parameters (<code>name</code>, <code>age</code>) are named the same as the fields — the parameter <b>shadows</b> the field. <code>this.name</code> means "the field on this object"; a bare <code>name</code> means the parameter. Drop <code>this</code> and you just reassign the parameter to itself — the field is never set.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">b) Exact output of Child's <code>showPrices()</code></span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p>Fields aren't polymorphic — resolved at compile time by declared type.</p>
+        <div class="out">80.0
+50.0</div>
+        <p><code>this.price</code> → Child's own field (80.0). <code>super.price</code> → explicitly reaches Parent's hidden field (50.0). This is <b>field hiding</b>, not overriding.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">c-i) Array empty → createAccount("Alex", 150.0) → accountCount = ?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><code>0 &lt; 50</code> is true → stored at <code>accounts[0]</code>, then incremented. <b>accountCount becomes 1.</b></p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">c-ii) At exactly 50 accounts, createAccount("Sam", 40.0) is called — what happens?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><code>accountCount &lt; MAX_ACCOUNTS</code> → <code>50 &lt; 50</code> is <b>false</b>. The body never executes — the account is <b>silently not created</b>. No exception, no error.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">c-iii) Why check <code>index &lt; accountCount</code> instead of <code>index &lt; MAX_ACCOUNTS</code>?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><code>MAX_ACCOUNTS</code> is just array capacity (50 slots reserved). <code>accountCount</code> is how many are actually <b>filled</b>. Slots beyond it are still <code>null</code>. Using <code>MAX_ACCOUNTS</code> would let you index into a null slot → <code>NullPointerException</code>.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">iv) Trace: createAccount(UserA,300) → createAccount(UserB,600) → deposit(0,50) → withdraw(1,200)</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <ul>
+          <li><code>accounts[0]</code> = UserA, 300.0 &nbsp;→&nbsp; count=1</li>
+          <li><code>accounts[1]</code> = UserB, 600.0 &nbsp;→&nbsp; count=2</li>
+          <li><code>deposit(0,50)</code>: 300 + 50 = <b>350.0</b></li>
+          <li><code>withdraw(1,200)</code>: 200 ≤ 600, so 600 − 200 = <b>400.0</b></li>
+        </ul>
+        <div class="out">accounts[0].balance = 350.0
+accounts[1].balance = 400.0
+accountCount = 2</div>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">v) Modify withdraw() so a minimum 10.00 must remain after the transaction</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <pre class="code"><span class="kw">public static void</span> withdraw(<span class="kw">int</span> index, <span class="kw">double</span> amount) {
+    <span class="kw">if</span> (index &gt;= <span class="num">0</span> &amp;&amp; index &lt; accountCount 
+        &amp;&amp; amount &lt;= accounts[index].balance 
+        &amp;&amp; (accounts[index].balance - amount) &gt;= <span class="num">10.00</span>) {
+        accounts[index].balance -= amount;
+    }
+}</pre>
+        <p>The new clause computes the balance <i>after</i> the withdrawal and only proceeds if it's still ≥ 10.00 — enforcing a minimum balance floor.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ Q3 ============ -->
+  <div class="panel" id="panel-q3">
+    <h2 class="sectitle">Inheritance and Polymorphism <span class="marks">26 marks</span></h2>
+    <p class="secsub">Tracing ShapeApp, dynamic dispatch, and extending the Shape hierarchy.</p>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">a) Exact console output of ShapeApp (Math.PI = 3.14)</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <ul>
+          <li>Rectangle("Red", 5.0, 4.0) → 5.0 × 4.0 = <b>20.00</b></li>
+          <li>Circle("Blue", 3.0) → 3.14 × 3.0 × 3.0 = <b>28.26</b></li>
+          <li>Rectangle("Green", 2.0, 6.0) → 2.0 × 6.0 = <b>12.00</b></li>
+        </ul>
+        <div class="out">=== Rendering Canvas ===
+Color: Red | Area: 20.00
+Color: Blue | Area: 28.26
+Color: Green | Area: 12.00</div>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">b) Where does runtime polymorphism happen, and how does Java resolve it?</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <pre class="code">System.out.println(canvas[i].getDetails());</pre>
+        <p><code>canvas[i]</code> is <i>declared</i> as <code>Shape</code>, but at runtime holds a <code>Rectangle</code> or <code>Circle</code>. When <code>getDetails()</code> calls <code>calculateArea()</code>, Java checks the object's <b>actual runtime type</b> and dispatches to that class's override (dynamic method dispatch / late binding) — it can't be decided at compile time since <code>Shape.calculateArea()</code> is abstract.</p>
+      </div></div>
+    </div>
+
+    <div class="qitem" data-q>
+      <div class="qhead"><span class="qtext">c) Two new concrete Square subclasses</span><span class="chev">›</span></div>
+      <div class="qbody"><div class="qbody-inner">
+        <p><span class="badge err">HEADS UP</span> The paper asks for two classes both literally named <code>Square</code> — that can't compile in the same package. Keep one as <code>Square</code>, rename the second (e.g. <code>SquareViaRectangle</code>), and flag this to your instructor.</p>
+        <pre class="code"><span class="cm">// extends Shape directly</span>
+<span class="kw">class</span> Square <span class="kw">extends</span> Shape {
+    <span class="kw">private double</span> side;
+    <span class="kw">public</span> Square(<span class="kw">String</span> color, <span class="kw">double</span> side) {
+        <span class="kw">super</span>(color);
+        <span class="kw">this</span>.side = side;
+    }
+    <span class="kw">public double</span> calculateArea() { <span class="kw">return</span> side * side; }
+}</pre>
+        <pre class="code"><span class="cm">// extends Rectangle — reuses its fields & area logic, adds nothing new</span>
+<span class="kw">class</span> SquareViaRectangle <span class="kw">extends</span> Rectangle {
+    <span class="kw">public</span> SquareViaRectangle(<span class="kw">String</span> color, <span class="kw">double</span> side) {
+        <span class="kw">super</span>(color, side, side); <span class="cm">// width = height = side</span>
+    }
+    <span class="cm">// no override needed: inherited width*height == side*side</span>
+}</pre>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ FLASHCARDS ============ -->
+  <div class="panel" id="panel-cards">
+    <h2 class="sectitle">Flashcards</h2>
+    <p class="secsub">Tap the card to flip it. Work through the whole deck before the exam.</p>
+    <div class="deck-controls">
+      <button id="prevCard">← Prev</button>
+      <span class="deck-count" id="cardCount">1 / 10</span>
+      <button id="nextCard">Next →</button>
+      <button id="shuffleCard">🔀 Shuffle</button>
+    </div>
+    <div class="card-stage">
+      <div class="card" id="flashcard">
+        <div class="face front"><span class="eyebrow">Question</span><div id="cardFront"></div><span class="tapme">tap to flip</span></div>
+        <div class="face back"><span class="eyebrow">Answer</span><div id="cardBack"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <div class="panel" id="panel-quiz">
+    <h2 class="sectitle">Timed-Exam Drill</h2>
+    <p class="secsub">10 questions pulled straight from the paper's logic. No going back — just like the real thing.</p>
+    <div id="quizArea"></div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- TYPED CONSOLE LINE ---------------- */
+const line = 'javac ShapeApp.java && java ShapeApp  →  ready to study';
+let ti=0;
+const typedEl = document.getElementById('typedOut');
+(function type(){
+  if(ti<=line.length){ typedEl.textContent = line.slice(0,ti); ti++; setTimeout(type,35); }
+})();
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- ACCORDIONS ---------------- */
+document.querySelectorAll('[data-q] .qhead').forEach(h=>{
+  h.addEventListener('click', ()=> h.closest('.qitem').classList.toggle('open'));
+});
+
+/* ---------------- FLASHCARDS ---------------- */
+const cards = [
+  {f:"Why does `int 2ndPlaceWinner = 14;` fail to compile?", b:"Identifiers can never start with a digit."},
+  {f:"What must a public class's file name match?", b:"The class name exactly, including case — e.g. class Foo → Foo.java"},
+  {f:"What does Java insert automatically if you write no constructor?", b:"A default no-arg constructor that sets fields to 0 / false / null."},
+  {f:"Why can't a Java class extend two classes?", b:"Ambiguity (the diamond problem) if both parents define the same member. Interfaces avoid this — they only declare signatures."},
+  {f:"What happens if a class implements an interface but doesn't override its abstract method (and isn't itself abstract)?", b:"Compilation fails — implementing every abstract method is mandatory."},
+  {f:"In `this.price` vs `super.price` on hidden fields, which is resolved at compile time?", b:"Both — field access is always resolved by declared/static type, never polymorphic like methods."},
+  {f:"Why check `index < accountCount` instead of `index < MAX_ACCOUNTS`?", b:"MAX_ACCOUNTS is array capacity; accountCount is how many slots are filled. Slots beyond it are null → NullPointerException risk."},
+  {f:"What's the area of a Circle(radius=3.0) with Math.PI=3.14?", b:"3.14 × 3.0 × 3.0 = 28.26"},
+  {f:"Where does dynamic method dispatch happen in ShapeApp?", b:"canvas[i].getDetails() — declared type is Shape, actual runtime type (Rectangle/Circle) decides which calculateArea() runs."},
+  {f:"Why is `this` needed when a constructor parameter shares a field's name?", b:"The parameter shadows the field. `this.name` targets the field; a bare `name` targets the parameter."}
+];
+let cardIdx=0, flipped=false;
+const cardEl=document.getElementById('flashcard');
+function renderCard(){
+  document.getElementById('cardFront').textContent = cards[cardIdx].f;
+  document.getElementById('cardBack').textContent = cards[cardIdx].b;
+  document.getElementById('cardCount').textContent = (cardIdx+1)+' / '+cards.length;
+  cardEl.classList.remove('flipped'); flipped=false;
+}
+cardEl.addEventListener('click', ()=>{ flipped=!flipped; cardEl.classList.toggle('flipped'); });
+document.getElementById('nextCard').addEventListener('click', ()=>{ cardIdx=(cardIdx+1)%cards.length; renderCard(); });
+document.getElementById('prevCard').addEventListener('click', ()=>{ cardIdx=(cardIdx-1+cards.length)%cards.length; renderCard(); });
+document.getElementById('shuffleCard').addEventListener('click', ()=>{
+  for(let i=cards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cards[i],cards[j]]=[cards[j],cards[i]]; }
+  cardIdx=0; renderCard();
+});
+renderCard();
+
+/* ---------------- QUIZ ---------------- */
+const quiz = [
+  {q:"What causes `int 2ndPlaceWinner = 14;` to fail to compile?", opts:["Missing semicolon","Identifier starts with a digit","int can't hold 14","Reserved keyword"], a:1},
+  {q:"A public class named Report must be saved in a file called:", opts:["report.java","Report.txt","Report.java","java.Report"], a:2},
+  {q:"If you write no constructor at all, Java will:", opts:["Refuse to compile","Insert a default no-arg constructor","Leave the object unusable","Require you to add one manually before running"], a:1},
+  {q:"Why can't a Java class extend two parent classes?", opts:["Syntax doesn't allow more than one word after extends","It would create ambiguity if both parents share a member (diamond problem)","Classes can only have one method","There's a hard limit of one import per file"], a:1},
+  {q:"An interface's abstract method is NOT overridden by an implementing (non-abstract) class. Result?", opts:["Runs fine, method just does nothing","Compilation error","Runtime exception only","Java auto-generates the method body"], a:1},
+  {q:"Given Parent.price=50.0 and Child.price=80.0 (field hiding), Child.showPrices() prints this.price then super.price. Output?", opts:["50.0 then 80.0","80.0 then 80.0","80.0 then 50.0","50.0 then 50.0"], a:2},
+  {q:"In BankApplication, why guard with `index < accountCount` rather than `index < MAX_ACCOUNTS`?", opts:["accountCount is always smaller so it's faster","Slots from accountCount to MAX_ACCOUNTS-1 may be null — avoids NullPointerException","MAX_ACCOUNTS is private","No real reason, both work identically"], a:1},
+  {q:"Circle(radius=3.0), Math.PI=3.14 → calculateArea() returns:", opts:["18.84","28.26","9.42","31.40"], a:1},
+  {q:"In ShapeApp, dynamic method dispatch is demonstrated at:", opts:["Shape[] canvas = new Shape[3];","canvas[i].getDetails() resolving calculateArea() by actual runtime type","The abstract keyword on Shape","String.format(\"%.2f\", ...)"], a:1},
+  {q:"Constructor: `public Student(String name, int age){ this.name=name; this.age=age; }`. Why is `this` required?", opts:["It's optional style only","Parameters share names with fields, so `this` distinguishes the field from the parameter","Java requires `this` in every constructor","It marks the method as static"], a:1},
+];
+let qi=0, score=0, answered=false;
+const quizArea = document.getElementById('quizArea');
+
+function renderQuiz(){
+  if(qi>=quiz.length){
+    quizArea.innerHTML = `<div class="quiz-done">
+      <div class="big">${score} / ${quiz.length}</div>
+      <p style="color:var(--text-dim); margin-top:8px;">${score===quiz.length ? "Perfect run — you're exam-ready." : score>=quiz.length*0.7 ? "Solid. Review the ones you missed, then run it again." : "Head back through the Q1–Q3 tabs and try once more."}</p>
+      <div class="quiz-nav" style="justify-content:center; margin-top:24px;">
+        <button id="restartQuiz">Restart Quiz</button>
+      </div>
+    </div>`;
+    document.getElementById('restartQuiz').addEventListener('click', ()=>{ qi=0; score=0; renderQuiz(); });
+    return;
+  }
+  answered=false;
+  const item = quiz[qi];
+  quizArea.innerHTML = `
+    <div class="quiz-top">
+      <span class="deck-count">Question ${qi+1} / ${quiz.length}</span>
+      <span class="score-pill">Score: <b>${score}</b></span>
+    </div>
+    <div class="quiz-q">${item.q}</div>
+    <div id="optsWrap"></div>
+    <div class="quiz-nav">
+      <span></span>
+      <button id="nextQ" disabled>Next →</button>
+    </div>`;
+  const optsWrap = document.getElementById('optsWrap');
+  item.opts.forEach((opt,idx)=>{
+    const b = document.createElement('button');
+    b.className='opt'; b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      if(answered) return;
+      answered=true;
+      const buttons = optsWrap.querySelectorAll('.opt');
+      buttons.forEach(x=>x.disabled=true);
+      if(idx===item.a){ b.classList.add('correct'); score++; }
+      else { b.classList.add('wrong'); buttons[item.a].classList.add('correct'); }
+      document.getElementById('nextQ').disabled=false;
+    });
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('nextQ').addEventListener('click', ()=>{ qi++; renderQuiz(); });
+}
+renderQuiz();
+</script>
+
+</body>
+</html>

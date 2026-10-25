@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CEC318 — Mobile App Dev Study Guide</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e2229;
+    --line:#2a2f3a; --text:#e8eaed; --muted:#9aa2b1;
+    --accent:#5eb0ff; --good:#3ecf8e; --bad:#ff6b6b; --warn:#f5c451;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  header{padding:22px 20px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+  header h1{margin:0 0 4px;font-size:1.25rem;letter-spacing:.2px}
+  header p{margin:0;color:var(--muted);font-size:.85rem}
+  nav{display:flex;gap:6px;padding:12px 20px;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--panel)}
+  nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);padding:8px 12px;border-radius:20px;font-size:.82rem;cursor:pointer;white-space:nowrap}
+  nav button.active{background:var(--accent);color:#08111c;border-color:var(--accent);font-weight:600}
+  main{max-width:760px;margin:0 auto;padding:18px 16px 80px}
+  section{display:none}
+  section.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .card h2{margin:0 0 10px;font-size:1.02rem;color:var(--accent)}
+  .card h3{margin:14px 0 6px;font-size:.92rem;color:var(--text)}
+  .card h4{margin:10px 0 4px;font-size:.85rem;color:var(--warn)}
+  .card p, .card li{color:#cdd2dc;font-size:.9rem}
+  .card ul{margin:6px 0;padding-left:20px}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:.72rem;padding:2px 8px;border-radius:10px;margin-right:6px}
+  .lifecycle{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .lc-node{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.82rem;flex:1 1 40%;min-width:120px}
+  .lc-node b{display:block;color:var(--accent);font-size:.85rem}
+  .arch{display:grid;gap:8px;margin:10px 0}
+  .arch-row{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+  .arch-row b{color:var(--warn)}
+  .cmp-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.83rem}
+  .cmp-table th,.cmp-table td{border:1px solid var(--line);padding:8px;text-align:left;color:#cdd2dc}
+  .cmp-table th{background:var(--panel2);color:var(--accent)}
+  code{background:#0c0e13;border:1px solid var(--line);padding:1px 6px;border-radius:5px;font-size:.85em;color:#9fd4ff}
+  pre{background:#0c0e13;border:1px solid var(--line);padding:12px;border-radius:10px;overflow-x:auto;font-size:.8rem}
+  .toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .toc a{background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:.75rem;padding:4px 9px;border-radius:8px;text-decoration:none}
+  /* Flashcards */
+  .flash-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .flashcard{width:100%;max-width:560px;min-height:180px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:1rem;user-select:none}
+  .flashcard .face{display:none}
+  .flashcard .face.show{display:block}
+  .flashcard .q{color:var(--text)}
+  .flashcard .a{color:var(--good)}
+  .flash-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .flash-controls button, .flash-controls select{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:10px;font-size:.85rem;cursor:pointer}
+  .flash-controls button:active{transform:scale(.97)}
+  .flash-progress{color:var(--muted);font-size:.8rem}
+  .hint{color:var(--muted);font-size:.78rem;margin-top:4px}
+  /* Quiz */
+  .qprog{color:var(--muted);font-size:.8rem;margin-bottom:8px}
+  .qtext{font-size:.98rem;margin:8px 0 14px;color:var(--text)}
+  .opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:11px 14px;border-radius:10px;margin-bottom:8px;font-size:.88rem;cursor:pointer}
+  .opt:active{transform:scale(.99)}
+  .opt.correct{border-color:var(--good);background:rgba(62,207,142,.12)}
+  .opt.wrong{border-color:var(--bad);background:rgba(255,107,107,.12)}
+  .opt[disabled]{cursor:default}
+  .explain{background:var(--panel2);border-left:3px solid var(--accent);padding:10px 12px;border-radius:8px;font-size:.85rem;color:#cdd2dc;margin-top:10px;display:none}
+  .explain.show{display:block}
+  .quiz-nav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
+  .quiz-nav button{flex:1;background:var(--accent);color:#08111c;border:none;padding:11px;border-radius:10px;font-weight:600;font-size:.88rem;cursor:pointer}
+  .quiz-nav button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+  .quiz-nav button:disabled{opacity:.4}
+  .score-box{text-align:center;padding:26px 16px}
+  .score-box .big{font-size:2.2rem;font-weight:700;color:var(--accent)}
+  .badge-tf{font-size:.7rem;padding:2px 7px;border-radius:8px;background:var(--panel2);color:var(--muted);margin-left:6px}
+  .essay-outline li{margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CEC318 — Introduction to Mobile App Dev</h1>
+  <p>Full study guide · resit prep · College of Technology, UB</p>
+</header>
+
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script>
+const tabs = [
+  {id:'notes', label:'📘 Key Concepts'},
+  {id:'flash', label:'🃏 Flashcards'},
+  {id:'quiz', label:'✅ MCQ Quiz'},
+  {id:'tf', label:'🔁 True/False'},
+  {id:'essay', label:'✍️ Essay Prep'},
+];
+
+// ---------------- DATA ----------------
+
+const flashcards = [
+  // -- App vs Website --
+  {cat:"App vs Web", q:"Why is it NOT an advantage of a mobile app over a mobile website?", a:"Easier to update the content — websites update instantly for everyone; apps need a build + store review + user update."},
+  {cat:"App vs Web", q:"Name 3 real advantages of native apps over mobile websites", a:"Full hardware access (camera, GPS, sensors), offline capability, push notifications, richer/faster UI, home-screen presence."},
+  {cat:"App vs Web", q:"Name 2 advantages of a mobile website over a native app", a:"Instant updates with no store approval, works across all platforms with one codebase, no install friction, better discoverability via search engines."},
+  {cat:"App vs Web", q:"What is a Progressive Web App (PWA)?", a:"A website built to behave like an app — installable, works offline via service workers, can send push notifications — a middle ground between website and native app."},
+
+  // -- Data & network --
+  {cat:"Data/Network", q:"When an app needs to upload data, what should it do?", a:"Cache the data and send it asynchronously — never block the UI waiting on network, and never require the user to keep the app open until it finishes."},
+  {cat:"Data/Network", q:"What's the recommended pattern for handling flaky mobile networks?", a:"Queue requests locally, retry with backoff, sync in the background when connectivity returns (offline-first architecture)."},
+  {cat:"Data/Network", q:"Why avoid synchronous network calls on the main thread?", a:"They freeze the UI (ANR — App Not Responding on Android) and create a poor, laggy user experience; use async/background threads instead."},
+
+  // -- Battery / performance --
+  {cat:"Battery/Perf", q:"Two ways to reduce battery drain from sensors/activity", a:"1) Check whether a sensor reading actually needs updating before waking it. 2) Shut down background activity when the app is paused."},
+  {cat:"Battery/Perf", q:"Name 3 more battery-saving techniques beyond sensors", a:"Batch network requests instead of polling constantly, use push notifications instead of polling for updates, reduce GPS accuracy/frequency when high precision isn't needed, dim/limit animations."},
+  {cat:"Battery/Perf", q:"What is 'jank' in mobile UI performance?", a:"Visible stutter/lag when frames are dropped — usually caused by expensive work on the UI thread during rendering (target: 60fps, ~16ms per frame)."},
+
+  // -- State save/restore --
+  {cat:"Lifecycle", q:"Android: save & restore app state — which callbacks?", a:"Save: onPause() / onSaveInstanceState(). Restore: onRestoreInstanceState() / onResume()."},
+  {cat:"Lifecycle", q:"iOS equivalent of Android's save/restore state pair?", a:"Save: viewWillDisappear() / applicationDidEnterBackground(). Restore: viewWillAppear() / applicationDidBecomeActive()."},
+  {cat:"Lifecycle", q:"Difference: Android Paused vs Stopped state", a:"Paused = partially visible (e.g. dialog on top), resources still held, user can see but not interact. Stopped = fully hidden, OS may reclaim resources, process may be killed under memory pressure."},
+  {cat:"Lifecycle", q:"Full Android Activity lifecycle order (happy path)", a:"onCreate → onStart → onResume → [Running] → onPause → onStop → onDestroy. Returning to foreground from Stop: onRestart → onStart → onResume."},
+  {cat:"Lifecycle", q:"Full iOS UIViewController lifecycle order (happy path)", a:"viewDidLoad → viewWillAppear → viewDidAppear → [Active] → viewWillDisappear → viewDidDisappear → dealloc."},
+  {cat:"Lifecycle", q:"When is onCreate() called again vs onRestart()?", a:"onCreate() only fires once per activity instance (or again if the OS fully destroyed and recreated it, e.g. after a config change or being killed). onRestart() fires when coming back from Stopped without being destroyed."},
+  {cat:"Lifecycle", q:"What triggers a config change that can restart an Activity?", a:"Screen rotation, language change, or entering split-screen — by default Android destroys and recreates the Activity unless you handle the change manually."},
+
+  // -- Design principles / UX --
+  {cat:"UX/Design", q:"Porting an existing app straight to mobile — good idea?", a:"False. Mobile has different screen sizes, input methods, and interaction patterns — needs redesign, not a straight port."},
+  {cat:"UX/Design", q:"Is vertical scrolling good UI practice on mobile?", a:"True for lists/feeds — natural thumb gesture. But not ideal for every element — e.g. wide tables or horizontal image galleries need other patterns (carousels, tabs)."},
+  {cat:"UX/Design", q:"What is 'thumb zone' design?", a:"Placing primary actions within easy reach of the thumb on a one-handed grip — bottom nav bars and FABs sit in the thumb zone; secondary actions go higher up."},
+  {cat:"UX/Design", q:"Why use a minimum 44–48dp/pt touch target size?", a:"Fingers are far less precise than a mouse pointer — targets smaller than ~44pt cause frequent mis-taps, especially for users with larger fingers or motor impairments."},
+  {cat:"UX/Design", q:"What's the difference between Material Design and Human Interface Guidelines (HIG)?", a:"Material Design = Google's Android design system (elevation/shadows, FAB, bottom sheets). HIG = Apple's iOS design system (flat design, SF Symbols, navigation bars). Cross-platform apps often need to adapt to both."},
+
+  // -- Constraints --
+  {cat:"Constraints", q:"Is battery use a concern for all app developers?", a:"True — background sync, GPS, sensors, network polling all drain battery regardless of app category."},
+  {cat:"Constraints", q:"Are hardware capability differences between devices limited?", a:"False — huge variance in RAM, sensors, chipsets, screen sizes, camera quality across the Android/iOS device landscape (device fragmentation)."},
+  {cat:"Constraints", q:"Is mobile UX typically worse than desktop?", a:"False — mobile can be more usable for its context (on-the-go, touch-first, focused single tasks) even though the screen is smaller."},
+  {cat:"Constraints", q:"What is 'device fragmentation' and why does it matter for Android especially?", a:"The huge variety of screen sizes, OS versions, and hardware specs across manufacturers — developers must test across many configurations, unlike Apple's more limited iOS device set."},
+
+  // -- Languages & frameworks --
+  {cat:"Languages", q:"3 languages used to build mobile apps", a:"Kotlin/Java (native Android), Swift/Objective-C (native iOS), Dart (Flutter, cross-platform). JavaScript/TypeScript also counts (React Native)."},
+  {cat:"Languages", q:"Name 3 cross-platform mobile frameworks", a:"Flutter (Dart, own rendering engine), React Native (JS, bridges to native components), Xamarin/.NET MAUI (C#, compiles to native)."},
+  {cat:"Languages", q:"How does Flutter render its UI — what's different vs React Native?", a:"Flutter draws every pixel itself via its own Skia/Impeller rendering engine (no native UI components used) — this gives pixel-perfect consistency across platforms. React Native instead maps its components to real native platform widgets via a JS bridge."},
+  {cat:"Languages", q:"What is Xamarin / .NET MAUI's approach?", a:"Write C# once; the framework compiles it down to native ARM code and maps UI to native controls per platform — closer to native performance than a JS bridge."},
+  {cat:"Languages", q:"Native app development — pros and cons vs cross-platform", a:"Pros: best performance, full access to latest platform APIs, platform-idiomatic UX. Cons: separate codebase per platform (2x the work), higher cost/time, need developers skilled in each platform's language."},
+  {cat:"Languages", q:"Hybrid apps (e.g. Cordova/Ionic) — what are they?", a:"A web app (HTML/CSS/JS) wrapped in a native container (WebView) that gives access to some device APIs via plugins — cheap and fast to build, but weaker performance and less native feel than Flutter/React Native."},
+
+  // -- Android architecture --
+  {cat:"Architecture", q:"Android Architecture — main layers (top to bottom)", a:"Applications → Application Framework → Libraries + Android Runtime (ART) → Hardware Abstraction Layer (HAL) → Linux Kernel."},
+  {cat:"Architecture", q:"What lives in the 'Application Framework' layer?", a:"Activity Manager, Window Manager, Content Providers, View System, Notification Manager, Package Manager — the APIs apps are built against."},
+  {cat:"Architecture", q:"What is ART (Android Runtime)?", a:"Executes the app's compiled bytecode (from Kotlin/Java), using ahead-of-time (AOT) and just-in-time (JIT) compilation to run apps efficiently on-device; replaced the older Dalvik VM."},
+  {cat:"Architecture", q:"What does the Hardware Abstraction Layer (HAL) do?", a:"Provides a standard interface for hardware vendors to implement (camera, sensors, Bluetooth), so the Framework layer above doesn't need to know vendor-specific hardware details."},
+  {cat:"Architecture", q:"What sits at the base of the Android stack?", a:"The Linux Kernel — handles drivers, process/memory management, power management, and security (permissions, sandboxing)."},
+
+  // -- Flutter widgets --
+  {cat:"Flutter", q:"Flutter: StatefulWidget vs StatelessWidget", a:"StatelessWidget: immutable, no internal state, rebuilds only when parent passes new data. StatefulWidget: holds a mutable State object; calling setState() triggers a rebuild when internal data changes."},
+  {cat:"Flutter", q:"Flutter: role of runApp()", a:"Takes the root Widget and attaches it to the screen — inflates the widget tree and makes it the app's root, kicking off the render pipeline."},
+  {cat:"Flutter", q:"Flutter: role of build()", a:"Describes the part of the UI represented by the widget, in terms of other, lower-level widgets — called whenever the widget needs to re-render (e.g. after setState())."},
+  {cat:"Flutter", q:"Flutter: role of Scaffold()", a:"Provides the basic visual structure of a Material Design screen — app bar, body, floating action button, drawer, bottom navigation bar."},
+  {cat:"Flutter", q:"Flutter: role of FloatingActionButton()", a:"A circular button that floats above the UI for the screen's primary action (e.g. add item, compose message)."},
+  {cat:"Flutter", q:"What is 'everything is a widget' in Flutter?", a:"Flutter's entire UI — layout, styling, even padding and alignment — is composed by nesting widgets; there's no separate markup language, just a tree of Dart widget objects."},
+  {cat:"Flutter", q:"What is the Widget tree vs the Element tree vs the RenderObject tree?", a:"Widget tree = immutable config/blueprint. Element tree = mutable, manages widget lifecycle and holds state. RenderObject tree = handles actual layout/painting on screen. Flutter diffs widget trees to efficiently update the element/render trees."},
+  {cat:"Flutter", q:"Common Flutter layout widgets", a:"Row/Column (linear layout), Container (box model: padding/margin/decoration), Stack (overlapping/absolute positioning), ListView (scrollable list), Expanded/Flexible (fill available space)."},
+  {cat:"Flutter", q:"What does hot reload do in Flutter?", a:"Injects updated source code into the running Dart VM and rebuilds the widget tree without restarting the app or losing state — huge dev productivity boost vs full rebuilds."},
+
+  // -- Security & permissions --
+  {cat:"Security", q:"What is the Android permission model (runtime permissions)?", a:"Since Android 6.0, dangerous permissions (camera, location, contacts) are requested at runtime, not just install time — the user can grant/deny each one individually and revoke later."},
+  {cat:"Security", q:"Why should sensitive data (tokens, passwords) never be stored in plain SharedPreferences?", a:"SharedPreferences/UserDefaults files aren't encrypted by default and can be read if the device is rooted/jailbroken — use encrypted storage (Android Keystore, iOS Keychain) instead."},
+  {cat:"Security", q:"What's app sandboxing?", a:"Each app runs in its own isolated environment/user ID with restricted access to other apps' data and the system — a core mobile OS security feature."},
+  {cat:"Security", q:"Why use HTTPS/TLS for all app network calls?", a:"Prevents man-in-the-middle attacks from intercepting or tampering with data in transit, especially critical on public/untrusted Wi-Fi."},
+
+  // -- Testing & publishing --
+  {cat:"Testing/Publish", q:"3 levels of mobile app testing", a:"Unit tests (individual functions/classes), widget/UI tests (individual screens/components in isolation), integration/end-to-end tests (full user flows on a real or simulated device)."},
+  {cat:"Testing/Publish", q:"What is an APK vs an AAB (Android)?", a:"APK = installable Android package. AAB (Android App Bundle) = the modern format submitted to Play Store, which then generates optimized APKs per device configuration (smaller downloads)."},
+  {cat:"Testing/Publish", q:"What's a staged/phased rollout?", a:"Releasing an app update to a small % of users first, monitoring crash rates/feedback, then gradually increasing the rollout percentage — limits blast radius of bugs."},
+];
+
+const mcqQuestions = [
+  {
+    q:"Which of the following is NOT an advantage of a mobile app over a mobile version of the company's website?",
+    opts:["Full access to device hardware","Capability to interact with the service when disconnected from the network","Easier to update the content","More responsive and richer user interface experience"],
+    correct:2,
+    explain:"Websites update instantly server-side for every user — no app-store approval or user download needed. That's a website advantage, not an app advantage, so it's the odd one out."
+  },
+  {
+    q:"When an app needs to upload data, what should it do?",
+    opts:["Immediately connect and transmit the data","Halt user interaction until the upload is completed","Cache the data until the user exits the app","Send the data asynchronously"],
+    correct:3,
+    explain:"Best practice is asynchronous upload — the app queues/caches and sends in the background without blocking the UI or waiting for the user to leave."
+  },
+  {
+    q:"To reduce an app's drain on the battery, the app should do which of the following?",
+    opts:["Never use any sensors","Monitor to determine whether a sensor reading needs an update before it 'uses' the sensor","Shut down all activity when an app is paused","B and C"],
+    correct:3,
+    explain:"Both are legitimate power-saving strategies: check-before-poll sensor logic, and suspending background activity on pause."
+  },
+  {
+    q:"The proper lifecycle method to save app status is ____ in Android and ____ in iOS.",
+    opts:["onPause, viewWillDisappear","onResume, viewWillAppear","onStopped, viewDidUnload","onDestroy, applicationDidEnterBackground"],
+    correct:0,
+    explain:"Android saves state as the activity leaves the foreground (onPause). iOS equivalently saves state as the view is about to leave the screen (viewWillDisappear)."
+  },
+  {
+    q:"What is the difference between the Paused and Stopped states in the Android lifecycle?",
+    opts:[
+      "In the Stopped state, all hardware resources used by the app are automatically stopped. In the Paused state they are stopped only if developer code tells them to stop",
+      "In the Paused state, the activity is no longer visible. In the Stopped state, the activity's resources are reclaimed by the OS",
+      "In the Paused state, the user can see but not interact with the activity. In the Stopped state, the activity is not visible",
+      "There is no difference"
+    ],
+    correct:2,
+    explain:"Paused = partially visible / interruptable but on-screen (e.g. a dialog on top). Stopped = completely hidden, and the OS may reclaim its resources or kill the process under memory pressure."
+  },
+  {
+    q:"Which layer of the Android architecture provides a standard interface for hardware vendors, so the Framework doesn't need vendor-specific code?",
+    opts:["Application Framework","Android Runtime (ART)","Hardware Abstraction Layer (HAL)","Linux Kernel"],
+    correct:2,
+    explain:"HAL sits between the framework and the actual hardware drivers, exposing a uniform interface (e.g. for camera, sensors, Bluetooth) regardless of the underlying chip vendor."
+  },
+  {
+    q:"What best describes how Flutter renders its UI, compared to React Native?",
+    opts:[
+      "Flutter maps widgets to native platform UI components, just like React Native",
+      "Flutter draws every pixel itself using its own rendering engine, without using native UI components",
+      "Flutter compiles directly to a native WebView",
+      "Flutter has no UI rendering system — it only handles logic"
+    ],
+    correct:1,
+    explain:"Flutter uses its own rendering engine (Skia/Impeller) to draw every widget itself, giving pixel-perfect consistency across platforms. React Native instead bridges to real native components."
+  },
+  {
+    q:"In Flutter, what does calling setState() inside a State object do?",
+    opts:["Deletes the widget","Marks the widget dirty and triggers Flutter to re-run its build() method","Restarts the entire app","Saves data to persistent storage"],
+    correct:1,
+    explain:"setState() tells the framework that this widget's internal state changed, scheduling a rebuild so build() runs again and the UI reflects the new state."
+  },
+  {
+    q:"Why should sensitive data like auth tokens NOT be stored in plain SharedPreferences (Android) or UserDefaults (iOS)?",
+    opts:[
+      "They're deleted automatically every 24 hours",
+      "They aren't encrypted by default and can be read on a rooted/jailbroken device",
+      "They can only store numbers, not strings",
+      "They're slower than a database"
+    ],
+    correct:1,
+    explain:"SharedPreferences/UserDefaults are plain files on disk. For sensitive data, use platform secure storage — Android Keystore or iOS Keychain — which encrypts data at rest."
+  },
+  {
+    q:"What is the main purpose of a staged/phased rollout when publishing an app update?",
+    opts:[
+      "To make the app load faster for all users immediately",
+      "To release the update to a small percentage of users first, catching crashes before a full rollout",
+      "To bypass app store review",
+      "To reduce the app's file size"
+    ],
+    correct:1,
+    explain:"A staged rollout limits the 'blast radius' of a bad update — issues are caught with a small % of users before pushing to everyone."
+  },
+];
+
+const tfQuestions = [
+  {q:"Porting an existing application directly to a mobile platform is a good idea.", correct:false, explain:"False — mobile has different screen real estate, input model (touch vs mouse/keyboard), and usage context. A direct port usually gives a poor experience; the UI/UX needs rethinking."},
+  {q:"Vertical scrolling is good for lists but should be used in a more limited fashion for other types of screen elements.", correct:true, explain:"True — vertical scroll matches natural thumb movement for feeds/lists, but overusing it for things like wide data tables or multi-column layouts hurts usability."},
+  {q:"Battery use is not a concern for all app developers.", correct:false, explain:"False — the statement claims battery isn't a universal concern, but it is: any background work, sensors, GPS, or network use drains battery regardless of app type."},
+  {q:"Differences in hardware capabilities are limited between devices.", correct:false, explain:"False — device fragmentation is significant: RAM, CPU, sensors, screen size/density, and camera quality vary widely across the Android/iOS ecosystem."},
+  {q:"The usability of mobile devices is typically worse than a traditional computing device, such as a desktop computer.", correct:false, explain:"False — mobile devices are often more usable for their context (quick, on-the-go, touch-first tasks) even though the screen is smaller and input is different."},
+  {q:"A StatelessWidget in Flutter can call setState() to update its own UI.", correct:false, explain:"False — only a State object (paired with a StatefulWidget) can call setState(). StatelessWidgets have no mutable internal state to update."},
+  {q:"Android App Bundles (AAB) generally result in smaller downloads for end users than a universal APK.", correct:true, explain:"True — the Play Store generates device-specific optimized APKs from the AAB, stripping out resources the specific device doesn't need."},
+  {q:"Hybrid apps built with a WebView (e.g. Cordova) typically achieve the same raw performance as fully native apps.", correct:false, explain:"False — WebView-based hybrid apps run through a browser engine layer and generally have weaker performance and less native feel than native or Flutter/React Native apps."},
+  {q:"Since Android 6.0, dangerous permissions like camera and location must be requested from the user at runtime, not just at install.", correct:true, explain:"True — this runtime permission model lets users grant/deny each sensitive permission individually and revoke it later in Settings."},
+  {q:"Flutter's hot reload restarts the entire app and resets all state every time code changes.", correct:false, explain:"False — hot reload injects updated code into the running Dart VM and rebuilds the widget tree while preserving app state, which is what makes it fast for iterative development."},
+];
+
+// ---------------- RENDER: NAV ----------------
+const navEl = document.getElementById('nav');
+tabs.forEach((t,i)=>{
+  const b = document.createElement('button');
+  b.textContent = t.label;
+  b.dataset.id = t.id;
+  if(i===0) b.classList.add('active');
+  b.onclick = ()=>switchTab(t.id);
+  navEl.appendChild(b);
+});
+function switchTab(id){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+  document.querySelectorAll('main section').forEach(s=>s.classList.toggle('active', s.id===id));
+}
+
+const main = document.getElementById('main');
+
+// ---------------- SECTION: NOTES ----------------
+const notesSection = document.createElement('section');
+notesSection.id = 'notes';
+notesSection.className = 'active';
+notesSection.innerHTML = `
+  <div class="toc">
+    <a href="#n-lifecycle">Lifecycle</a><a href="#n-arch">Architecture</a><a href="#n-constraints">Constraints</a>
+    <a href="#n-flutter">Flutter</a><a href="#n-frameworks">Frameworks compared</a><a href="#n-security">Security</a><a href="#n-testing">Testing & publishing</a>
+  </div>
+
+  <div class="card" id="n-lifecycle">
+    <h2>Android Activity Lifecycle</h2>
+    <div class="lifecycle">
+      <div class="lc-node"><b>onCreate()</b>Activity is created. Init UI, bindings.</div>
+      <div class="lc-node"><b>onStart()</b>Activity becoming visible.</div>
+      <div class="lc-node"><b>onResume()</b>Foreground, interactive. <span class="badge-tf">restore state</span></div>
+      <div class="lc-node"><b>onPause()</b>Losing focus (e.g. dialog on top). <span class="badge-tf">save state</span></div>
+      <div class="lc-node"><b>onStop()</b>No longer visible. OS may reclaim resources.</div>
+      <div class="lc-node"><b>onRestart()</b>Coming back from Stop → onStart again.</div>
+      <div class="lc-node"><b>onDestroy()</b>Activity being removed from memory.</div>
+    </div>
+    <p class="hint">Save/restore pair for exams: <code>onPause</code> ↔ <code>onResume</code> (or the more granular <code>onSaveInstanceState</code> / <code>onRestoreInstanceState</code>).</p>
+
+    <h3>iOS UIViewController Lifecycle (compare side by side)</h3>
+    <table class="cmp-table">
+      <tr><th>Android</th><th>iOS equivalent</th><th>Meaning</th></tr>
+      <tr><td>onCreate()</td><td>viewDidLoad()</td><td>View/activity created, one-time setup</td></tr>
+      <tr><td>onStart()</td><td>viewWillAppear()</td><td>About to become visible</td></tr>
+      <tr><td>onResume()</td><td>viewDidAppear()</td><td>Now fully visible & interactive</td></tr>
+      <tr><td>onPause()</td><td>viewWillDisappear()</td><td>About to lose focus — save state here</td></tr>
+      <tr><td>onStop()</td><td>viewDidDisappear()</td><td>Fully hidden</td></tr>
+      <tr><td>onDestroy()</td><td>dealloc()</td><td>Being removed from memory</td></tr>
+    </table>
+
+    <h3>What can restart an Activity unexpectedly?</h3>
+    <ul>
+      <li>Screen rotation / orientation change</li>
+      <li>System language change</li>
+      <li>Entering/exiting split-screen or multi-window mode</li>
+      <li>OS killing the app in the background under memory pressure, then recreating it when the user returns</li>
+    </ul>
+  </div>
+
+  <div class="card" id="n-arch">
+    <h2>Android Architecture (layers, top → bottom)</h2>
+    <div class="arch">
+      <div class="arch-row"><b>1. Applications</b> — the apps users open (Contacts, your app, etc.)</div>
+      <div class="arch-row"><b>2. Application Framework</b> — Activity Manager, Window Manager, Content Providers, View System, Notification Manager, Package Manager</div>
+      <div class="arch-row"><b>3. Libraries & Android Runtime (ART)</b> — native C/C++ libs (SQLite, WebKit, OpenGL) + ART compiles/executes app bytecode (AOT + JIT)</div>
+      <div class="arch-row"><b>4. Hardware Abstraction Layer (HAL)</b> — standard interface exposing device hardware (camera, sensors, Bluetooth) to the framework, hiding vendor differences</div>
+      <div class="arch-row"><b>5. Linux Kernel</b> — drivers, memory/process management, power management, security (permissions, app sandboxing)</div>
+    </div>
+    <p class="hint">Exam framing: "present the Android Architecture" wants the 5 layers, top to bottom, with one sentence on what each does.</p>
+  </div>
+
+  <div class="card" id="n-constraints">
+    <h2>Principal constraints when building mobile apps</h2>
+    <ul>
+      <li><b>Battery life</b> — every wake-lock, GPS ping, sensor poll costs power</li>
+      <li><b>Network variability</b> — offline, spotty, or metered/expensive connections</li>
+      <li><b>Screen size / input</b> — small screens, touch-first, no mouse/keyboard, thumb-reach zones</li>
+      <li><b>Processing power & memory</b> — weaker CPUs, limited RAM vs desktop, OS may kill backgrounded apps</li>
+      <li><b>Hardware/OS fragmentation</b> — huge variety of devices, OS versions, sensors (especially Android)</li>
+      <li><b>Interruptions</b> — calls, notifications, app switching mid-task</li>
+      <li><b>Security & privacy</b> — device can be lost/stolen; sensitive data needs on-device protection</li>
+    </ul>
+  </div>
+
+  <div class="card" id="n-flutter">
+    <h2>Flutter essentials</h2>
+    <h3>StatelessWidget vs StatefulWidget</h3>
+    <ul>
+      <li><b>StatelessWidget</b>: immutable, no internal mutable state, only rebuilds if parent gives it new input data.</li>
+      <li><b>StatefulWidget</b>: paired with a <code>State</code> object; calling <code>setState()</code> tells Flutter to rebuild it when internal data changes.</li>
+    </ul>
+    <h3>Key widgets/methods</h3>
+    <ul>
+      <li><code>runApp()</code> — takes the root widget, attaches it to the screen, starts the app</li>
+      <li><code>build()</code> — describes the widget's UI in terms of other, lower-level widgets; re-runs on rebuild</li>
+      <li><code>Scaffold()</code> — the basic visual page structure: app bar, body, drawer, FAB, bottom nav</li>
+      <li><code>FloatingActionButton()</code> — floating circular button for the screen's primary action</li>
+    </ul>
+    <h3>The three trees</h3>
+    <p><b>Widget tree</b> (immutable blueprint) → <b>Element tree</b> (mutable, manages lifecycle/state) → <b>RenderObject tree</b> (actual layout & painting). Flutter diffs widget trees between rebuilds to update only what changed — this is why rebuilds are fast.</p>
+    <h3>Common layout widgets</h3>
+    <ul>
+      <li><code>Row</code> / <code>Column</code> — linear horizontal/vertical layout</li>
+      <li><code>Container</code> — box model: padding, margin, decoration, size</li>
+      <li><code>Stack</code> — overlapping/absolute positioning</li>
+      <li><code>ListView</code> — scrollable, potentially long lists</li>
+      <li><code>Expanded</code> / <code>Flexible</code> — fill available space in a Row/Column</li>
+    </ul>
+    <h3>Hot reload vs hot restart</h3>
+    <p><b>Hot reload</b>: injects new code into the running app, preserves state — fast iteration. <b>Hot restart</b>: fully restarts the app, state is lost, needed for changes hot reload can't apply (e.g. changing main(), global variables, native code).</p>
+  </div>
+
+  <div class="card" id="n-frameworks">
+    <h2>Native vs Cross-platform vs Hybrid — full comparison</h2>
+    <table class="cmp-table">
+      <tr><th>Approach</th><th>Language</th><th>Rendering</th><th>Performance</th><th>Example</th></tr>
+      <tr><td>Native</td><td>Kotlin/Java, Swift/Obj-C</td><td>True native components</td><td>Best</td><td>Instagram (native cores)</td></tr>
+      <tr><td>Flutter</td><td>Dart</td><td>Own engine (Skia/Impeller), draws every pixel</td><td>Near-native</td><td>Google Ads, Alibaba</td></tr>
+      <tr><td>React Native</td><td>JS/TypeScript</td><td>Bridges to real native components</td><td>Good, bridge overhead</td><td>Facebook, Discord</td></tr>
+      <tr><td>Xamarin/.NET MAUI</td><td>C#</td><td>Compiles to native, native controls</td><td>Near-native</td><td>UPS, Alaska Airlines</td></tr>
+      <tr><td>Hybrid (Cordova/Ionic)</td><td>HTML/CSS/JS</td><td>WebView wrapping a website</td><td>Weakest</td><td>Untappd (older versions)</td></tr>
+    </table>
+    <p class="hint">For "describe 3 cross-platform frameworks" essay answers: give language + rendering approach + one pro + one con for each.</p>
+  </div>
+
+  <div class="card" id="n-security">
+    <h2>Security & permissions</h2>
+    <ul>
+      <li><b>Runtime permissions</b> (Android 6.0+): dangerous permissions (camera, location, contacts) requested at runtime, user can grant/deny/revoke individually.</li>
+      <li><b>App sandboxing</b>: each app runs isolated with its own user ID, restricted from reading other apps' private data.</li>
+      <li><b>Secure storage</b>: never put tokens/passwords in plain SharedPreferences/UserDefaults — use Android Keystore / iOS Keychain, which encrypt data at rest.</li>
+      <li><b>HTTPS/TLS everywhere</b>: protects data in transit from interception on untrusted networks.</li>
+      <li><b>Token-based auth</b> (OAuth2/JWT) over storing raw credentials on-device.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="n-testing">
+    <h2>Testing & publishing</h2>
+    <ul>
+      <li><b>Unit tests</b> — individual functions/classes in isolation</li>
+      <li><b>Widget/UI tests</b> — individual screens/components render & behave correctly</li>
+      <li><b>Integration/E2E tests</b> — full user flows on a real or simulated device</li>
+      <li><b>APK vs AAB</b> (Android): AAB is the modern submission format; Play Store generates optimized, smaller per-device APKs from it</li>
+      <li><b>Staged/phased rollout</b> — release to a small % of users first, watch crash rates, then widen — limits blast radius of bad releases</li>
+    </ul>
+  </div>
+`;
+main.appendChild(notesSection);
+
+// ---------------- SECTION: FLASHCARDS ----------------
+const flashSection = document.createElement('section');
+flashSection.id = 'flash';
+let flashIdx = 0, flashShowingAnswer = false;
+const flashCats = ["All", ...Array.from(new Set(flashcards.map(f=>f.cat)))];
+flashSection.innerHTML = `
+  <div class="flash-wrap">
+    <div class="flash-controls">
+      <label class="hint">Filter: </label>
+      <select id="flashCatSel">${flashCats.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+    </div>
+    <div class="flash-progress" id="flashProg"></div>
+    <div class="flashcard" id="flashCard">
+      <div class="face q show" id="flashQ"></div>
+      <div class="face a" id="flashA"></div>
+    </div>
+    <p class="hint">Tap the card to flip</p>
+    <div class="flash-controls">
+      <button id="flashPrev">◀ Prev</button>
+      <button id="flashShuffle">🔀 Shuffle</button>
+      <button id="flashNext">Next ▶</button>
+    </div>
+  </div>
+`;
+main.appendChild(flashSection);
+
+let flashOrder = flashcards.map((_,i)=>i);
+function currentFlashList(){
+  const cat = document.getElementById('flashCatSel').value;
+  return cat==="All" ? flashOrder : flashOrder.filter(i=>flashcards[i].cat===cat);
+}
+function renderFlash(){
+  const list = currentFlashList();
+  if(flashIdx >= list.length) flashIdx = 0;
+  if(list.length===0){
+    document.getElementById('flashQ').textContent = "No cards in this category.";
+    document.getElementById('flashA').textContent = "";
+    document.getElementById('flashProg').textContent = "";
+    return;
+  }
+  const card = flashcards[list[flashIdx]];
+  document.getElementById('flashQ').textContent = `[${card.cat}] ${card.q}`;
+  document.getElementById('flashA').textContent = card.a;
+  document.getElementById('flashQ').classList.toggle('show', !flashShowingAnswer);
+  document.getElementById('flashA').classList.toggle('show', flashShowingAnswer);
+  document.getElementById('flashProg').textContent = `Card ${flashIdx+1} / ${list.length}`;
+}
+document.getElementById('flashCard').onclick = ()=>{ flashShowingAnswer=!flashShowingAnswer; renderFlash(); };
+document.getElementById('flashPrev').onclick = ()=>{ const list=currentFlashList(); flashIdx=(flashIdx-1+list.length)%list.length; flashShowingAnswer=false; renderFlash(); };
+document.getElementById('flashNext').onclick = ()=>{ const list=currentFlashList(); flashIdx=(flashIdx+1)%list.length; flashShowingAnswer=false; renderFlash(); };
+document.getElementById('flashShuffle').onclick = ()=>{
+  for(let i=flashOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[flashOrder[i],flashOrder[j]]=[flashOrder[j],flashOrder[i]];}
+  flashIdx=0; flashShowingAnswer=false; renderFlash();
+};
+document.getElementById('flashCatSel').onchange = ()=>{ flashIdx=0; flashShowingAnswer=false; renderFlash(); };
+renderFlash();
+
+// ---------------- SECTION: MCQ QUIZ ----------------
+const quizSection = document.createElement('section');
+quizSection.id = 'quiz';
+quizSection.innerHTML = `<div class="card" id="quizCard"></div>`;
+main.appendChild(quizSection);
+
+let qIdx = 0, qScore = 0, qAnswered = [];
+function renderQuiz(){
+  const card = document.getElementById('quizCard');
+  if(qIdx >= mcqQuestions.length){
+    card.innerHTML = `
+      <div class="score-box">
+        <div class="big">${qScore} / ${mcqQuestions.length}</div>
+        <p>correct</p>
+        <button class="opt" style="max-width:200px;margin:12px auto 0;text-align:center" id="quizRestart">Try again</button>
+      </div>`;
+    document.getElementById('quizRestart').onclick = ()=>{ qIdx=0; qScore=0; qAnswered=[]; renderQuiz(); };
+    return;
+  }
+  const item = mcqQuestions[qIdx];
+  const already = qAnswered[qIdx];
+  card.innerHTML = `
+    <div class="qprog">Question ${qIdx+1} / ${mcqQuestions.length} · Score: ${qScore}</div>
+    <div class="qtext">${item.q}</div>
+    <div id="optsWrap"></div>
+    <div class="explain" id="explainBox">${item.explain}</div>
+    <div class="quiz-nav">
+      <button class="secondary" id="qPrev" ${qIdx===0?'disabled':''}>◀ Back</button>
+      <button id="qNext">${qIdx===mcqQuestions.length-1?'Finish':'Next ▶'}</button>
+    </div>
+  `;
+  const optsWrap = document.getElementById('optsWrap');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className='opt'; b.textContent = opt;
+    if(already!==undefined){
+      b.disabled = true;
+      if(i===item.correct) b.classList.add('correct');
+      else if(i===already) b.classList.add('wrong');
+    }
+    b.onclick = ()=>{
+      if(qAnswered[qIdx]!==undefined) return;
+      qAnswered[qIdx]=i;
+      if(i===item.correct) qScore++;
+      document.getElementById('explainBox').classList.add('show');
+      renderQuiz();
+    };
+    optsWrap.appendChild(b);
+  });
+  if(already!==undefined) document.getElementById('explainBox').classList.add('show');
+  document.getElementById('qNext').onclick = ()=>{ qIdx++; renderQuiz(); };
+  document.getElementById('qPrev').onclick = ()=>{ qIdx--; renderQuiz(); };
+}
+renderQuiz();
+
+// ---------------- SECTION: TRUE/FALSE ----------------
+const tfSection = document.createElement('section');
+tfSection.id = 'tf';
+tfSection.innerHTML = `<div class="card" id="tfCard"></div>`;
+main.appendChild(tfSection);
+
+let tIdx=0, tScore=0, tAnswered=[];
+function renderTf(){
+  const card = document.getElementById('tfCard');
+  if(tIdx >= tfQuestions.length){
+    card.innerHTML = `
+      <div class="score-box">
+        <div class="big">${tScore} / ${tfQuestions.length}</div>
+        <p>correct</p>
+        <button class="opt" style="max-width:200px;margin:12px auto 0;text-align:center" id="tfRestart">Try again</button>
+      </div>`;
+    document.getElementById('tfRestart').onclick = ()=>{ tIdx=0; tScore=0; tAnswered=[]; renderTf(); };
+    return;
+  }
+  const item = tfQuestions[tIdx];
+  const already = tAnswered[tIdx];
+  card.innerHTML = `
+    <div class="qprog">Statement ${tIdx+1} / ${tfQuestions.length} · Score: ${tScore}</div>
+    <div class="qtext">${item.q}</div>
+    <div id="tfOptsWrap"></div>
+    <div class="explain" id="tfExplainBox">${item.explain}</div>
+    <div class="quiz-nav">
+      <button class="secondary" id="tPrev" ${tIdx===0?'disabled':''}>◀ Back</button>
+      <button id="tNext">${tIdx===tfQuestions.length-1?'Finish':'Next ▶'}</button>
+    </div>
+  `;
+  const wrap = document.getElementById('tfOptsWrap');
+  [['True',true],['False',false]].forEach(([label,val])=>{
+    const b = document.createElement('button');
+    b.className='opt'; b.textContent = label;
+    if(already!==undefined){
+      b.disabled = true;
+      if(val===item.correct) b.classList.add('correct');
+      else if(val===already) b.classList.add('wrong');
+    }
+    b.onclick = ()=>{
+      if(tAnswered[tIdx]!==undefined) return;
+      tAnswered[tIdx]=val;
+      if(val===item.correct) tScore++;
+      document.getElementById('tfExplainBox').classList.add('show');
+      renderTf();
+    };
+    wrap.appendChild(b);
+  });
+  if(already!==undefined) document.getElementById('tfExplainBox').classList.add('show');
+  document.getElementById('tNext').onclick = ()=>{ tIdx++; renderTf(); };
+  document.getElementById('tPrev').onclick = ()=>{ tIdx--; renderTf(); };
+}
+renderTf();
+
+// ---------------- SECTION: ESSAY PREP ----------------
+const essaySection = document.createElement('section');
+essaySection.id = 'essay';
+essaySection.innerHTML = `
+  <div class="card">
+    <h2>Structured Questions — quick-answer skeletons</h2>
+    <ul class="essay-outline">
+      <li><b>3 languages for mobile dev:</b> Kotlin (Android), Swift (iOS), Dart (Flutter, cross-platform)</li>
+      <li><b>3 cross-platform frameworks:</b> Flutter, React Native, Xamarin/.NET MAUI — for each: language, rendering approach, one pro, one con (see comparison table in Key Concepts)</li>
+      <li><b>Android lifecycle:</b> onCreate → onStart → onResume → onPause → onStop → onDestroy (+ onRestart)</li>
+      <li><b>Android architecture:</b> Applications → Framework → Libraries/ART → HAL → Linux Kernel</li>
+      <li><b>Principal constraints:</b> battery, network, screen/input, processing power, hardware fragmentation, security</li>
+      <li><b>StatefulWidget vs StatelessWidget:</b> mutable internal state + setState() vs immutable, rebuilds only from parent</li>
+      <li><b>Scaffold/runApp/build/FloatingActionButton:</b> see Flutter essentials in Key Concepts</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Part II.A — Dart Calculator (console app)</h2>
+    <p>Requirements checklist: <code>Calculator</code> class with a constructor, methods for +, −, ×, ÷, menu-driven number selection, loop until Exit(5), handle invalid input.</p>
+    <pre>import 'dart:io';
+
+class Calculator {
+  double num1, num2;
+  Calculator(this.num1, this.num2);
+
+  double add() => num1 + num2;
+  double subtract() => num1 - num2;
+  double multiply() => num1 * num2;
+  double? divide() => num2 != 0 ? num1 / num2 : null;
+}
+
+void main() {
+  while (true) {
+    print('\\n1) Add 2) Subtract 3) Multiply 4) Divide 5) Exit');
+    stdout.write('Choose option: ');
+    int? choice = int.tryParse(stdin.readLineSync() ?? '');
+
+    if (choice == 5) {
+      print('Goodbye!');
+      break;
+    }
+    if (choice == null || choice < 1 || choice > 5) {
+      print('Invalid option, try again.');
+      continue;
+    }
+
+    stdout.write('Enter first number: ');
+    double? a = double.tryParse(stdin.readLineSync() ?? '');
+    stdout.write('Enter second number: ');
+    double? b = double.tryParse(stdin.readLineSync() ?? '');
+
+    if (a == null || b == null) {
+      print('Invalid number entered.');
+      continue;
+    }
+
+    Calculator calc = Calculator(a, b);
+    switch (choice) {
+      case 1: print('Result: ${calc.add()}'); break;
+      case 2: print('Result: ${calc.subtract()}'); break;
+      case 3: print('Result: ${calc.multiply()}'); break;
+      case 4:
+        double? r = calc.divide();
+        print(r != null ? 'Result: $r' : 'Error: division by zero');
+        break;
+    }
+  }
+}</pre>
+    <p class="hint">This covers every rubric line: constructor (4), menu selection (2), two-number input (2), main() with a loop to Exit(5) (2), invalid-input handling (2).</p>
+  </div>
+
+  <div class="card">
+    <h2>Part II.B — Banking App essay (20 marks) — outline</h2>
+    <p>Write this as a short technical essay. Structure it in 4 sections matching the marks:</p>
+    <ul class="essay-outline">
+      <li><b>Core features:</b> account balance check, funds transfer, bill payment, transaction history, biometric/PIN login, push notifications for transactions.</li>
+      <li><b>UI structure:</b> bottom-nav Scaffold with Home/Transfer/History/Profile tabs; StatelessWidgets for static screens (About, Settings labels), StatefulWidgets for balance/transaction views that refetch data.</li>
+      <li><b>Data management:</b> local secure storage (Android Keystore/iOS Keychain for tokens) + REST/GraphQL API calls to the bank's backend; never store raw credentials on-device; HTTPS/TLS and token-based auth (OAuth2/JWT).</li>
+      <li><b>Development workflow:</b> native mobile is often preferred here given security/hardware needs (biometrics, secure enclave), or Flutter if cross-platform speed matters more; mention CI/CD, staged rollout, and testing (unit + widget + security testing) given it's a financial app.</li>
+    </ul>
+    <p class="hint">Tie it back to your own SwiftBank/NexaBank Flutter work for concrete, credible detail — you already know this architecture from experience.</p>
+  </div>
+
+  <div class="card">
+    <h2>Likely follow-up essay prompts (practice these too)</h2>
+    <ul class="essay-outline">
+      <li>"Compare native vs cross-platform development for a specific app type" — use the comparison table; pick the framework and justify with the app's constraints (performance-critical? team skillset? budget?).</li>
+      <li>"Explain how you would design an app to work well offline" — offline-first architecture: local DB (SQLite/Hive), queue writes, sync on reconnect, show cached data with a 'stale' indicator.</li>
+      <li>"Describe the security considerations for a mobile app handling financial data" — secure storage, HTTPS, token auth, app sandboxing, biometric auth, certificate pinning (bonus point if mentioned).</li>
+      <li>"Explain the Activity/View lifecycle and why understanding it matters" — tie lifecycle knowledge directly to battery savings, state persistence, and avoiding memory leaks/crashes.</li>
+    </ul>
+  </div>
+`;
+main.appendChild(essaySection);
+</script>
+</body>
+</html>

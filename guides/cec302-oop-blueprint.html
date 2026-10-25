@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEC302 — OOP Blueprint Study Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root{
+    --blueprint: #0d2b4e;
+    --blueprint-deep: #081b33;
+    --line: #7fc7ff;
+    --line-dim: #3d6c94;
+    --paper: #eaf2fb;
+    --accent: #ffb454;
+    --accent2: #6de3b0;
+    --wrong: #ff6b6b;
+    --grid: rgba(127,199,255,0.10);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      var(--blueprint);
+    color: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height:100vh;
+    padding: 0 0 60px;
+  }
+
+  header{
+    padding: 36px 20px 24px;
+    text-align:center;
+    border-bottom: 1px solid var(--line-dim);
+    background: linear-gradient(180deg, var(--blueprint-deep), transparent);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: var(--line);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h1{
+    margin: 0 0 8px;
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  h1 span{ color: var(--accent); }
+  .sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--line-dim);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  nav{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin: 22px auto 0;
+    padding: 0 16px;
+  }
+  nav button{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--line-dim);
+    color: var(--paper);
+    padding: 9px 14px;
+    border-radius: 3px;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  nav button.active{
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,180,84,0.08);
+  }
+  nav button:hover{ border-color: var(--line); }
+
+  main{
+    max-width: 720px;
+    margin: 30px auto 0;
+    padding: 0 18px;
+  }
+
+  section{ display:none; }
+  section.active{ display:block; animation: fade .3s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .panel-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 4px 0 16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel-title::before{ content:"◤"; color: var(--line); }
+
+  /* Flashcards */
+  .deck-status{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--line-dim);
+    text-align:center;
+    margin-bottom: 14px;
+  }
+  .card{
+    border: 1px solid var(--line-dim);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+    min-height: 190px;
+    padding: 26px 22px;
+    cursor: pointer;
+    position: relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transition: border-color .15s ease;
+  }
+  .card:hover{ border-color: var(--line); }
+  .card .tag{
+    position:absolute; top:12px; left:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--line-dim);
+    letter-spacing: 0.1em;
+  }
+  .card .face{ font-size: 17px; line-height:1.5; font-weight:500; }
+  .card .face.answer{ color: var(--accent2); font-family:'JetBrains Mono', monospace; font-size:14px; text-align:left; white-space:pre-wrap; }
+  .card .hint{
+    position:absolute; bottom:12px; right:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--line-dim);
+  }
+  .deck-nav{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top: 16px;
+  }
+  .deck-nav button{
+    font-family:'JetBrains Mono', monospace;
+    background: transparent; border:1px solid var(--line-dim); color:var(--paper);
+    padding: 10px 16px; border-radius:3px; cursor:pointer; font-size:13px;
+  }
+  .deck-nav button:hover{ border-color: var(--line); }
+  .dots{ display:flex; gap:6px; }
+  .dots span{ width:6px; height:6px; border-radius:50%; background: var(--line-dim); }
+  .dots span.on{ background: var(--accent); }
+
+  /* Quiz */
+  .q-progress{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--line-dim); margin-bottom: 8px;
+  }
+  .q-text{ font-size: 17px; font-weight:600; margin: 6px 0 18px; line-height:1.5; }
+  .opt{
+    display:block; width:100%; text-align:left;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line-dim);
+    color: var(--paper);
+    padding: 13px 14px; margin-bottom: 10px;
+    border-radius: 4px; cursor:pointer;
+    font-family:'Space Grotesk', sans-serif; font-size: 14px;
+    transition: all .12s ease;
+  }
+  .opt:hover{ border-color: var(--line); }
+  .opt.correct{ border-color: var(--accent2); background: rgba(109,227,176,0.1); }
+  .opt.wrong{ border-color: var(--wrong); background: rgba(255,107,107,0.1); }
+  .opt:disabled{ cursor: default; }
+  .explain{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12.5px; line-height:1.6;
+    color: var(--line);
+    background: rgba(127,199,255,0.06);
+    border-left: 2px solid var(--line);
+    padding: 12px 14px; margin-top: 14px; border-radius: 0 4px 4px 0;
+    display:none;
+  }
+  .explain.show{ display:block; }
+  .quiz-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; }
+  .score-pill{
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    border:1px solid var(--accent); color:var(--accent);
+    padding: 6px 12px; border-radius: 20px;
+  }
+  .next-btn{
+    font-family:'JetBrains Mono', monospace; font-size:13px;
+    background: var(--accent); color: var(--blueprint-deep); border:none;
+    padding: 10px 18px; border-radius:3px; cursor:pointer; font-weight:700;
+    opacity: 0.4; pointer-events:none;
+  }
+  .next-btn.ready{ opacity:1; pointer-events:all; }
+  .quiz-done{ text-align:center; padding: 30px 0; }
+  .quiz-done .big{ font-size: 42px; font-weight:700; color: var(--accent); }
+  .restart{
+    margin-top:16px; font-family:'JetBrains Mono', monospace; font-size:12px;
+    background:transparent; border:1px solid var(--line-dim); color:var(--paper);
+    padding:9px 16px; border-radius:3px; cursor:pointer;
+  }
+
+  /* Trace section */
+  .trace-code{
+    font-family:'JetBrains Mono', monospace; font-size: 12.5px; line-height:1.7;
+    background: var(--blueprint-deep); border:1px solid var(--line-dim); border-radius:6px;
+    padding: 16px; white-space:pre-wrap; color: #cfe6ff; margin-bottom: 16px;
+  }
+  .trace-code .kw{ color: var(--accent); }
+  .trace-code .cm{ color: var(--line-dim); }
+  .trace-row{
+    display:flex; gap:10px; align-items:center; margin-bottom:10px;
+    font-family:'JetBrains Mono', monospace; font-size:13px;
+  }
+  .trace-row label{ min-width: 150px; color: var(--line); }
+  .trace-row input{
+    flex:1; background: rgba(255,255,255,0.03); border:1px solid var(--line-dim);
+    color: var(--paper); padding: 8px 10px; border-radius:4px; font-family:'JetBrains Mono', monospace;
+  }
+  .trace-row input.ok{ border-color: var(--accent2); }
+  .trace-row input.bad{ border-color: var(--wrong); }
+  .check-btn{
+    font-family:'JetBrains Mono', monospace; background: var(--accent2); color:var(--blueprint-deep);
+    border:none; padding: 10px 18px; border-radius:3px; cursor:pointer; font-weight:700; margin-top:6px;
+  }
+  .trace-feedback{ margin-top:10px; font-family:'JetBrains Mono', monospace; font-size:12.5px; color: var(--line); }
+
+  footer{
+    text-align:center; margin-top: 40px;
+    font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--line-dim);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">CEC302 · Object-Oriented Programming · Resit Prep</div>
+  <h1>Study<span>Blueprint</span></h1>
+  <div class="sub">Flip the deck, run the quiz, trace the code. Built from your actual resit paper.</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="cards">◇ Flashcards</button>
+  <button class="tab-btn" data-tab="quiz">◇ Quiz</button>
+  <button class="tab-btn" data-tab="trace">◇ Trace the Code</button>
+</nav>
+
+<main>
+
+  <!-- FLASHCARDS -->
+  <section id="cards" class="active">
+    <div class="panel-title">Concept deck</div>
+    <div class="deck-status" id="deckStatus">Card 1 of 10</div>
+    <div class="card" id="flashcard">
+      <span class="tag">TAP TO FLIP</span>
+      <div class="face" id="cardFace"></div>
+    </div>
+    <div class="deck-nav">
+      <button id="prevCard">← Prev</button>
+      <div class="dots" id="dots"></div>
+      <button id="nextCard">Next →</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <div class="panel-title">Timed-exam style quiz</div>
+    <div id="quizBody"></div>
+  </section>
+
+  <!-- TRACE -->
+  <section id="trace">
+    <div class="panel-title">Trace: BankApplication memory state</div>
+    <div class="trace-code">class BankAccount {
+  <span class="kw">public</span> String name;
+  <span class="kw">public</span> double balance;
+}
+
+<span class="cm">// From an empty state, run in order:</span>
+BankApplication.createAccount(<span class="kw">"UserA"</span>, 300.0);
+BankApplication.createAccount(<span class="kw">"UserB"</span>, 600.0);
+BankApplication.deposit(0, 50.0);
+BankApplication.withdraw(1, 200.0);</div>
+
+    <div class="trace-row">
+      <label>accounts[0].balance</label>
+      <input type="text" id="t1" placeholder="?">
+    </div>
+    <div class="trace-row">
+      <label>accounts[1].balance</label>
+      <input type="text" id="t2" placeholder="?">
+    </div>
+    <div class="trace-row">
+      <label>accountCount</label>
+      <input type="text" id="t3" placeholder="?">
+    </div>
+    <button class="check-btn" id="checkTrace">Check my trace</button>
+    <div class="trace-feedback" id="traceFeedback"></div>
+  </section>
+
+</main>
+
+<footer>Built for your CEC302 resit — good luck in the exam hall.</footer>
+
+<script>
+// ---------- TAB SWITCHING ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('main > section');
+tabBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    sections.forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- FLASHCARDS ----------
+const flashcards = [
+  {q:"What must the source file name be for:\npublic class InventoryManager {}", a:"InventoryManager.java\n\nMust match the public class name exactly, including case."},
+  {q:"Why does\nint 2ndPlaceWinner = 14;\nfail to compile?", a:"Identifiers cannot start\nwith a digit.\n\n($ and _ are legal first characters, digits are not.)"},
+  {q:"Java class naming convention?", a:"PascalCase\n(UpperCamelCase)\n\ne.g. BankAccount, InventoryManager"},
+  {q:"Java method/variable naming convention?", a:"camelCase\n\ne.g. calculateArea(), annualSalary"},
+  {q:"What happens if you write NO constructor at all?", a:"Java auto-supplies a\ndefault no-arg constructor\n\nIt calls super() and leaves fields at default values (0, null, false)."},
+  {q:"Why can't a Java class extend two parent classes?", a:"Avoids the 'diamond problem'\n\nAmbiguity if both parents defined\nthe same method. Interfaces avoid\nthis — a class CAN implement many."},
+  {q:"A class implements an interface but doesn't\nimplement all its abstract methods.\nWhat must happen?", a:"The class itself must be\ndeclared abstract.\n\nOtherwise: compilation error."},
+  {q:"Why use 'this.name = name;' in a constructor?", a:"The parameter shadows\nthe instance field.\n\nthis.name = the field,\nname = the parameter."},
+  {q:"class Child extends Parent — both declare\n'double price'. What does super.price\ndo inside Child?", a:"Explicitly accesses\nParent's price field.\n\nFields are SHADOWED, not overridden\n(only methods are truly overridden)."},
+  {q:"Why check 'index < accountCount' instead of\n'index < MAX_ACCOUNTS' in an array-backed store?", a:"accountCount = slots\nactually filled.\n\nMAX_ACCOUNTS is just array capacity.\nUsing it risks hitting null slots →\nNullPointerException."},
+  {q:"Where does runtime polymorphism happen when\nyou loop over Shape[] canvas calling\ncanvas[i].getDetails()?", a:"Inside getDetails(),\nthe calculateArea() call.\n\nJVM uses dynamic dispatch: looks at\nthe object's ACTUAL class at runtime,\nnot its declared Shape type."},
+  {q:"A subclass Square extends Rectangle and just\ncalls super(color, side, side).\nDoes it need to override calculateArea()?", a:"No — it inherits\nRectangle's calculateArea()\n\nwidth*height already works correctly\nsince width == height == side."}
+];
+let cardIdx = 0, flipped = false;
+const cardFace = document.getElementById('cardFace');
+const flashcard = document.getElementById('flashcard');
+const deckStatus = document.getElementById('deckStatus');
+const dotsWrap = document.getElementById('dots');
+
+function renderDots(){
+  dotsWrap.innerHTML = flashcards.map((_,i)=>`<span class="${i===cardIdx?'on':''}"></span>`).join('');
+}
+function renderCard(){
+  flipped = false;
+  cardFace.className = 'face';
+  cardFace.textContent = flashcards[cardIdx].q;
+  deckStatus.textContent = `Card ${cardIdx+1} of ${flashcards.length}`;
+  renderDots();
+}
+flashcard.addEventListener('click', ()=>{
+  flipped = !flipped;
+  if(flipped){
+    cardFace.className = 'face answer';
+    cardFace.textContent = flashcards[cardIdx].a;
+  } else {
+    cardFace.className = 'face';
+    cardFace.textContent = flashcards[cardIdx].q;
+  }
+});
+document.getElementById('nextCard').addEventListener('click', ()=>{
+  cardIdx = (cardIdx+1) % flashcards.length;
+  renderCard();
+});
+document.getElementById('prevCard').addEventListener('click', ()=>{
+  cardIdx = (cardIdx-1+flashcards.length) % flashcards.length;
+  renderCard();
+});
+renderCard();
+
+// ---------- QUIZ ----------
+const quizQuestions = [
+  {
+    q: "Which of these fails to compile?",
+    opts: ["double annual_Salary = 50000.0;", "int 2ndPlaceWinner = 14;", "String $userToken = \"A1BF3\";", "None — all compile"],
+    correct: 1,
+    explain: "Identifiers can't start with a digit. Underscore and $ are legal first characters."
+  },
+  {
+    q: "class Parent { double price=50.0; } class Child extends Parent { double price=80.0; void show(){ System.out.println(this.price); System.out.println(super.price); } } — output?",
+    opts: ["50.0 then 80.0", "80.0 then 50.0", "80.0 then 80.0", "Compile error"],
+    correct: 1,
+    explain: "this.price = Child's own field (80.0). super.price explicitly reaches Parent's shadowed field (50.0)."
+  },
+  {
+    q: "In an array-backed store, accountCount == MAX_ACCOUNTS and createAccount() is called again. What happens?",
+    opts: ["ArrayIndexOutOfBoundsException", "Silently does nothing — the if-guard blocks it", "Overwrites accounts[0]", "NullPointerException"],
+    correct: 1,
+    explain: "The guard 'if (accountCount < MAX_ACCOUNTS)' is false, so the body never runs — no error, no account added."
+  },
+  {
+    q: "Shape[] canvas holds a Rectangle and a Circle. canvas[i].getDetails() calls calculateArea() internally. How does Java pick which calculateArea() runs?",
+    opts: ["Based on the declared type Shape, at compile time", "Based on the object's actual runtime class — dynamic dispatch", "It's random", "It always runs Shape's own version"],
+    correct: 1,
+    explain: "This is runtime (dynamic) polymorphism: the JVM inspects the actual object type at runtime and invokes its overridden method."
+  },
+  {
+    q: "A class implements an interface with one abstract method but never provides an implementation. What's required for this to compile?",
+    opts: ["Nothing — Java provides a default", "The class must be declared abstract", "The interface method becomes optional automatically", "It will compile with a warning only"],
+    correct: 1,
+    explain: "Concrete classes must implement all interface methods. If it can't, it must itself be declared abstract."
+  },
+  {
+    q: "Why is 'this.name = name;' needed in a constructor like public BankAccount(String name){ this.name = name; }?",
+    opts: ["It's optional style preference", "The parameter name shadows the instance field of the same name", "Java requires 'this' on every line", "It converts name to a String"],
+    correct: 1,
+    explain: "Without 'this', 'name = name' would just assign the parameter to itself — the field would stay unset."
+  },
+  {
+    q: "class Square extends Rectangle { public Square(String c, double side){ super(c, side, side); } } — does it need its own calculateArea()?",
+    opts: ["Yes, always required", "No — it inherits Rectangle's width*height logic, which already works since width==height", "Yes, because Square isn't a real shape", "No, because Square can't extend Rectangle at all"],
+    correct: 1,
+    explain: "Reusing the inherited calculateArea() is the whole point — no duplicate logic needed since side*side = width*height when width=height."
+  }
+];
+let qIdx = 0, score = 0, answered = false;
+const quizBody = document.getElementById('quizBody');
+
+function renderQuiz(){
+  if(qIdx >= quizQuestions.length){
+    quizBody.innerHTML = `
+      <div class="quiz-done">
+        <div class="big">${score}/${quizQuestions.length}</div>
+        <div style="font-family:'JetBrains Mono',monospace; color:var(--line-dim); margin-top:6px;">correct answers</div>
+        <button class="restart" id="restartQuiz">↺ Restart quiz</button>
+      </div>`;
+    document.getElementById('restartQuiz').addEventListener('click', ()=>{ qIdx=0; score=0; renderQuiz(); });
+    return;
+  }
+  answered = false;
+  const item = quizQuestions[qIdx];
+  quizBody.innerHTML = `
+    <div class="q-progress">Question ${qIdx+1} / ${quizQuestions.length}</div>
+    <div class="q-text">${item.q}</div>
+    <div id="optsWrap"></div>
+    <div class="explain" id="explainBox">${item.explain}</div>
+    <div class="quiz-footer">
+      <span class="score-pill">Score: ${score}</span>
+      <button class="next-btn" id="nextQ">Next →</button>
+    </div>`;
+  const optsWrap = document.getElementById('optsWrap');
+  item.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      if(answered) return;
+      answered = true;
+      const allOpts = optsWrap.querySelectorAll('.opt');
+      allOpts.forEach(o=>o.disabled = true);
+      if(i === item.correct){
+        b.classList.add('correct');
+        score++;
+      } else {
+        b.classList.add('wrong');
+        allOpts[item.correct].classList.add('correct');
+      }
+      document.getElementById('explainBox').classList.add('show');
+      document.getElementById('nextQ').classList.add('ready');
+      quizBody.querySelector('.score-pill').textContent = `Score: ${score}`;
+    });
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('nextQ').addEventListener('click', ()=>{
+    qIdx++;
+    renderQuiz();
+  });
+}
+renderQuiz();
+
+// ---------- TRACE EXERCISE ----------
+document.getElementById('checkTrace').addEventListener('click', ()=>{
+  const answers = { t1: "350", t1b:"350.0", t2: "400", t2b:"400.0", t3: "2" };
+  const fields = [
+    {id:'t1', ok:['350','350.0','350.00']},
+    {id:'t2', ok:['400','400.0','400.00']},
+    {id:'t3', ok:['2']}
+  ];
+  let allCorrect = true;
+  fields.forEach(f=>{
+    const el = document.getElementById(f.id);
+    const val = el.value.trim();
+    if(f.ok.includes(val)){
+      el.classList.add('ok'); el.classList.remove('bad');
+    } else {
+      el.classList.add('bad'); el.classList.remove('ok');
+      allCorrect = false;
+    }
+  });
+  const fb = document.getElementById('traceFeedback');
+  if(allCorrect){
+    fb.style.color = 'var(--accent2)';
+    fb.textContent = "✓ Correct — deposit(0,50.0) → 300+50=350.0. withdraw(1,200.0) → 600-200=400.0. Two accounts created → accountCount=2.";
+  } else {
+    fb.style.color = 'var(--wrong)';
+    fb.textContent = "Not quite — retrace: createAccount runs twice (accountCount→2), then deposit adds to index 0, withdraw subtracts from index 1.";
+  }
+});
+</script>
+
+</body>
+</html>

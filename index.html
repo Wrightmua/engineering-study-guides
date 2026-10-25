@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Engineering Study Guides</title>
+<style>
+  :root { --bg: #f5f7fb; --card: #ffffff; --ink: #14202e; --soft: #5a6878; --line: #e2e8f0; --accent: #2563eb; --tag: #eef3ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1420; --card: #151f2e; --ink: #e8eef6; --soft: #96a3b4; --line: #243246; --accent: #6ea2ff; --tag: #1b2a44; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  main { max-width: 960px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 2rem; letter-spacing: -0.02em; }
+  .lead { color: var(--soft); margin: 8px 0 32px; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  a.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; text-decoration: none; color: inherit; transition: transform .15s ease, border-color .15s ease; }
+  a.card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .code { display: inline-block; font: 600 12px ui-monospace, Consolas, monospace; background: var(--tag); color: var(--accent); padding: 3px 8px; border-radius: 6px; }
+  .card h2 { font-size: 1.05rem; margin: 10px 0 4px; }
+  .card p { font-size: .9rem; color: var(--soft); }
+  footer { margin-top: 40px; font-size: .85rem; color: var(--soft); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Engineering Study Guides</h1>
+  <p class="lead">Interactive revision tools I built for my computer and electrical engineering courses. Each one is a single HTML page that works offline, with no build step.</p>
+  <div class="grid">
+    <a class="card" href="guides/cec302-oop-console.html"><span class="code">CEC302</span><h2>OOP Resit Console</h2><p>Object-oriented programming revision in a console-style interface.</p></a>
+    <a class="card" href="guides/cec302-oop-blueprint.html"><span class="code">CEC302</span><h2>OOP Blueprint</h2><p>Classes, inheritance, polymorphism and design, laid out as a blueprint.</p></a>
+    <a class="card" href="guides/cec304-cryptography.html"><span class="code">CEC304</span><h2>Introduction to Cryptography</h2><p>Interactive walkthrough of classical and modern ciphers.</p></a>
+    <a class="card" href="guides/cec318-mobile-app-dev.html"><span class="code">CEC318</span><h2>Mobile App Development</h2><p>Full course study guide.</p></a>
+    <a class="card" href="guides/cec318-exam-paper-guide.html"><span class="code">CEC318</span><h2>Exam Paper Guide</h2><p>Worked answers organised around past exam papers.</p></a>
+    <a class="card" href="guides/cec320-embedded-systems.html"><span class="code">CEC320</span><h2>Embedded Systems 1</h2><p>Microcontrollers, peripherals and embedded design.</p></a>
+    <a class="card" href="guides/eec330-digital-electronics-resit.html"><span class="code">EEC330</span><h2>Digital Electronics: Resit Guide</h2><p>Logic, flip-flops, counters and sequential circuits.</p></a>
+    <a class="card" href="guides/eec330-digital-electronics-ca.html"><span class="code">EEC330</span><h2>Digital Electronics: CA Guide</h2><p>Continuous-assessment revision.</p></a>
+  </div>
+  <footer>See also: <a href="https://github.com/Wrightmua/flip-flop-lab" style="color: var(--accent)">Flip-Flop Lab</a>, an interactive D/JK flip-flop simulator.</footer>
+</main>
+</body>
+</html>

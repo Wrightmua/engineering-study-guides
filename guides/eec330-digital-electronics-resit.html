@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EEC330 — Digital Electronics Resit Guide</title>
+<style>
+  :root{
+    --bg: #0d1210;
+    --panel: #131a17;
+    --panel-2: #182019;
+    --line: #26332c;
+    --ink: #e8ede9;
+    --ink-dim: #9db0a3;
+    --hi: #ff8a3d;      /* signal-orange, our "1" state */
+    --lo: #2fae7a;      /* circuit-green, our "0" state */
+    --wire: #4a6358;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: var(--mono); line-height:1.55;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-attachment: fixed;
+    background-position: -1px -1px;
+  }
+  a{color:var(--hi);}
+  ::selection{ background: var(--hi); color:#0d1210; }
+
+  /* Header */
+  header{
+    padding: 48px 24px 28px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(20,26,23,0.9), rgba(13,18,16,0.4));
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--lo); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"●"; color:var(--hi); font-size:9px;}
+  h1{
+    font-family:var(--serif); font-weight:600; font-size: clamp(28px,5vw,44px);
+    margin:.3em 0 .15em; color:#fff; letter-spacing:-0.01em;
+  }
+  .subhead{color:var(--ink-dim); font-size:14px; max-width:640px;}
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;
+  }
+  .chip{
+    border:1px solid var(--line); border-radius:3px; padding:4px 10px;
+    font-size:11px; color:var(--ink-dim); background:var(--panel);
+  }
+
+  /* Nav / progress */
+  .toc{
+    position:sticky; top:0; z-index:50;
+    background:rgba(13,18,16,0.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    display:flex; overflow-x:auto; gap:2px; padding:0 16px;
+  }
+  .toc button{
+    flex:none; background:none; border:none; color:var(--ink-dim);
+    font-family:var(--mono); font-size:12px; padding:14px 12px;
+    cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  .toc button:hover{color:var(--ink);}
+  .toc button.active{color:var(--hi); border-bottom-color:var(--hi);}
+
+  main{max-width:920px; margin:0 auto; padding: 32px 20px 100px;}
+
+  section.block{ margin-bottom:56px; scroll-margin-top:60px; }
+  .sec-num{
+    font-family:var(--serif); font-size:13px; color:var(--hi);
+    letter-spacing:.1em; text-transform:uppercase;
+  }
+  .sec-title{
+    font-family:var(--serif); font-size:26px; color:#fff; margin:.2em 0 4px;
+  }
+  .sec-marks{ color:var(--ink-dim); font-size:12px; margin-bottom:18px; }
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:20px 22px; margin-bottom:16px;
+  }
+  .card h3{
+    font-family:var(--serif); font-weight:500; font-size:16px; color:var(--ink);
+    margin:0 0 10px; display:flex; align-items:baseline; gap:10px;
+  }
+  .card h3 .m{ font-size:11px; color:var(--hi); font-family:var(--mono); font-weight:400; margin-left:auto; }
+
+  .steps{margin:0; padding-left:0; list-style:none;}
+  .steps li{
+    padding:8px 0 8px 22px; border-left:2px solid var(--line); position:relative; margin-left:4px;
+  }
+  .steps li::before{
+    content:"→"; position:absolute; left:-9px; top:8px; background:var(--panel);
+    color:var(--lo); font-size:12px;
+  }
+  .result{
+    display:inline-block; margin-top:8px; background:var(--panel-2);
+    border:1px solid var(--lo); color:var(--lo); padding:6px 12px;
+    border-radius:4px; font-weight:600; font-size:14px;
+  }
+  code, .eq{
+    font-family:var(--mono); background:var(--panel-2); padding:1px 6px;
+    border-radius:3px; color:#ffcaa6; font-size:0.92em;
+  }
+  table{ border-collapse:collapse; width:100%; margin:10px 0; font-size:13px; }
+  th,td{ border:1px solid var(--line); padding:5px 9px; text-align:center; }
+  th{ background:var(--panel-2); color:var(--hi); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em;}
+  td{color:var(--ink-dim);}
+  td.one{ color:var(--hi); font-weight:700; }
+  td.zero{ color:var(--wire); }
+
+  .kmap{ display:inline-grid; gap:0; margin:8px 6px 8px 0; border:1px solid var(--line);}
+  .kmap div{ width:44px; height:34px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); font-size:13px; color:var(--ink-dim); background:var(--panel-2);}
+  .kmap div.h{ background:transparent; border:none; color:var(--lo); font-size:11px;}
+  .kmap div.one{ color:var(--hi); font-weight:700; background:#241a13;}
+  .kmap div.dc{ color:var(--ink-dim); font-style:italic;}
+
+  /* quiz */
+  .quiz-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:20px 22px; margin-bottom:14px;
+  }
+  .quiz-q{ font-size:14px; color:var(--ink); margin-bottom:12px;}
+  .quiz-opts{ display:flex; flex-direction:column; gap:8px; }
+  .quiz-opts button{
+    text-align:left; background:var(--panel-2); border:1px solid var(--line);
+    color:var(--ink-dim); padding:10px 14px; border-radius:4px; font-family:var(--mono);
+    font-size:13px; cursor:pointer; transition:.15s;
+  }
+  .quiz-opts button:hover{ border-color: var(--wire); color:var(--ink);}
+  .quiz-opts button.correct{ border-color:var(--lo); color:var(--lo); background:#10201a;}
+  .quiz-opts button.wrong{ border-color:#e05252; color:#e05252; background:#241414;}
+  .quiz-fb{ margin-top:10px; font-size:13px; color:var(--ink-dim); min-height:18px; }
+
+  .progress-wrap{
+    position:fixed; bottom:0; left:0; right:0; height:4px; background:var(--panel);
+    z-index:60;
+  }
+  .progress-bar{ height:100%; background:linear-gradient(90deg, var(--lo), var(--hi)); width:0%; transition:width .2s; }
+
+  .flip{
+    perspective:1000px; cursor:pointer; margin-bottom:12px;
+  }
+  .flip-inner{
+    position:relative; transition:transform .5s; transform-style:preserve-3d;
+    min-height:70px;
+  }
+  .flip.flipped .flip-inner{ transform:rotateX(180deg); }
+  .flip-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:14px 16px; display:flex; align-items:center; font-size:13px;
+    overflow-y:auto;
+  }
+  #s8 .flip-inner{ min-height:110px; }
+  .flip-back{ transform:rotateX(180deg); color:var(--lo); border-color:var(--lo); background:#0f1a15;}
+  .flip-hint{ margin-left:auto; font-size:10px; color:var(--wire); text-transform:uppercase; letter-spacing:.08em;}
+
+  .badge-tip{
+    display:inline-block; font-size:11px; color:var(--bg); background:var(--hi);
+    padding:2px 8px; border-radius:3px; margin-bottom:10px; font-weight:700;
+  }
+
+  footer{
+    text-align:center; padding:30px; color:var(--wire); font-size:11px;
+    border-top:1px solid var(--line);
+  }
+  @media (max-width:600px){
+    .kmap div{ width:36px; height:30px; font-size:11px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<header>
+  <div class="eyebrow">University of Buea · College of Technology · EEC330</div>
+  <h1>Basic of Digital Electronics</h1>
+  <div class="subhead">Full worked solutions to the June 2026 resit paper (Prof. Feudjio), plus a self-check quiz and flip-card drill for each section. Work the "try it" prompts before revealing the steps — that's where the marks actually come from.</div>
+  <div class="meta-row">
+    <span class="chip">2 Hours · 70 marks total</span>
+    <span class="chip">4 sections</span>
+    <span class="chip">Number Systems</span>
+    <span class="chip">Boolean Algebra</span>
+    <span class="chip">Sequential Logic</span>
+    <span class="chip">Combinational Design</span>
+    <span class="chip">+ Deep Dive</span>
+    <span class="chip">+ 6 Practice Problems</span>
+  </div>
+</header>
+
+<nav class="toc" id="toc">
+  <button data-target="s1">I · Number Systems</button>
+  <button data-target="s2">II · Switching Functions</button>
+  <button data-target="s3">III · Sequential Logic</button>
+  <button data-target="s4">IV · Problem Analysis</button>
+  <button data-target="s7">Deep Dive</button>
+  <button data-target="s8">Practice Set</button>
+  <button data-target="s5">Quiz</button>
+  <button data-target="s6">Flashcards</button>
+</nav>
+
+
+<main>
+
+<!-- SECTION I -->
+<section class="block" id="s1">
+  <div class="sec-num">Section I</div>
+  <div class="sec-title">Number Systems</div>
+  <div class="sec-marks">20 marks</div>
+
+  <div class="card">
+    <h3>1. Define: Binary number, Number system, Bit <span class="m">3 marks</span></h3>
+    <ul class="steps">
+      <li><strong>Number system:</strong> a structured way of representing quantities using a set of symbols (digits) and a base (radix) that fixes how many symbols exist and what each position is worth.</li>
+      <li><strong>Binary number:</strong> a number expressed in base 2, using only the digits 0 and 1, where each position's weight is a power of 2.</li>
+      <li><strong>Bit:</strong> a "binary digit" — the smallest unit of digital information, holding exactly one of two values, 0 or 1.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>2. Logic symbol + truth table + equation for a gate of your choice <span class="m">3 marks</span></h3>
+    <ul class="steps">
+      <li>Pick a simple one to bank marks fast — the AND gate is safest.</li>
+      <li>Symbol: a D-shaped gate with two inputs A, B and one output Y.</li>
+      <li>Equation: <code>Y = A · B</code> (also written A AND B)</li>
+    </ul>
+    <table>
+      <tr><th>A</th><th>B</th><th>Y = A·B</th></tr>
+      <tr><td>0</td><td>0</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>1</td><td class="zero">0</td></tr>
+      <tr><td>1</td><td>0</td><td class="zero">0</td></tr>
+      <tr><td>1</td><td>1</td><td class="one">1</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>3a. (567)₁₀ = (?)₁₆ = (?)₈ <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>To hex — repeated division by 16: 567÷16 = 35 r <strong>7</strong>; 35÷16 = 2 r <strong>3</strong>; 2÷16 = 0 r <strong>2</strong>. Read remainders bottom-up.</li>
+      <li>To octal — repeated division by 8: 567÷8 = 70 r <strong>7</strong>; 70÷8 = 8 r <strong>6</strong>; 8÷8 = 1 r <strong>0</strong>; 1÷8 = 0 r <strong>1</strong>.</li>
+    </ul>
+    <span class="result">(567)₁₀ = (237)₁₆ = (1067)₈</span>
+  </div>
+
+  <div class="card">
+    <h3>3b. (A6C2)₁₆ = (?)₈ = (?)₂ <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>Hex→binary is direct: each hex digit → 4 bits. A=1010, 6=0110, C=1100, 2=0010.</li>
+      <li>Binary = <code>1010 0110 1100 0010</code></li>
+      <li>Binary→octal: regroup in 3s from the right: 1&nbsp;010&nbsp;011&nbsp;011&nbsp;000&nbsp;010 → pad the leftmost group to 3 bits: 001 010 011 011 000 010 → 1,2,3,3,0,2</li>
+    </ul>
+    <span class="result">(A6C2)₁₆ = (123302)₈ = (1010011011000010)₂</span>
+  </div>
+
+  <div class="card">
+    <h3>3c. (B.2C)₁₆ = (?)₈ = (?)₁₀ <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>To decimal: B = 11 (integer part). Fraction: 2×16⁻¹ + C×16⁻² = 2/16 + 12/256 = 0.125 + 0.046875 = 0.171875</li>
+      <li>To octal, go via binary first: B=1011, .2=0010, C=1100 → <code>1011.00101100</code></li>
+      <li>Regroup in 3s from the binary point: integer 1011→001 011 (1,3); fraction 001 011 00→001 011 000 (1,3,0)</li>
+    </ul>
+    <span class="result">(B.2C)₁₆ = (13.130)₈ = (11.171875)₁₀</span>
+  </div>
+
+  <div class="card">
+    <h3>3d. (10111100111.011)₂ = (?)₁₆ = (?)₈ <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>To hex: group in 4s from the binary point, padding the outer groups with zeros. Integer part (11 bits) pads to 12: <code>0101 1110 0111</code> = 5,E,7. Fraction <code>011</code> pads to <code>0110</code> = 6.</li>
+      <li>To octal: group in 3s. Integer pads to 12 bits: <code>010 111 100 111</code> = 2,7,4,7. Fraction <code>011</code> stays 3 bits = 3.</li>
+    </ul>
+    <span class="result">(10111100111.011)₂ = (5E7.6)₁₆ = (2747.3)₈</span>
+    <p style="color:var(--ink-dim); font-size:12px; margin-top:8px;">If your printed paper shows a slightly different bit string, the <em>method</em> above — pad to a multiple of 4 (hex) or 3 (octal) counting outward from the binary point — is what earns the marks.</p>
+  </div>
+
+  <div class="card">
+    <h3>4. A+B, A−B, A×B, A/B for A=1101011, B=1010 <span class="m">6 marks</span></h3>
+    <p style="color:var(--ink-dim); font-size:13px;">A = 1101011₂ = 107₁₀, B = 1010₂ = 10₁₀. Do the binary arithmetic directly, then sanity-check against decimal.</p>
+    <table>
+      <tr><th>Operation</th><th>Binary result</th><th>Decimal check</th></tr>
+      <tr><td>A + B</td><td class="one">1110101</td><td>117</td></tr>
+      <tr><td>A − B</td><td class="one">1100001</td><td>97</td></tr>
+      <tr><td>A × B</td><td class="one">10000101110</td><td>1070</td></tr>
+      <tr><td>A ÷ B</td><td class="one">1010 remainder 111</td><td>10 remainder 7</td></tr>
+    </table>
+    <ul class="steps">
+      <li><strong>Addition:</strong> align and add with carries, same as decimal: 1101011 + 0001010 = 1110101.</li>
+      <li><strong>Subtraction:</strong> borrow method, or add B's two's complement — either way A−B = 1100001.</li>
+      <li><strong>Multiplication:</strong> binary long multiplication — shift-and-add A for every 1-bit of B.</li>
+      <li><strong>Division:</strong> A÷B = 10 remainder 7 (since 107 = 10×10 + 7). Long division works the same way as decimal, just with 0/1 digits.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION II -->
+<section class="block" id="s2">
+  <div class="sec-num">Section II</div>
+  <div class="sec-title">Switching Functions and Simplification</div>
+  <div class="sec-marks">20 marks</div>
+
+  <div class="card">
+    <h3>1. Boolean expression + truth table for the given logic circuit <span class="m">5 marks</span></h3>
+    <p style="color:var(--ink-dim); font-size:13px;">Your diagram shows two gates (an AND-type and an OR-type, feeding one output F) with inputs A, B, C.</p>
+    <ul class="steps">
+      <li>Read the diagram gate-by-gate, left to right, writing the sub-expression at each output before combining.</li>
+      <li>Typical structure for this layout: first gate combines A and B, second combines that result with C to produce F. A common answer for this figure shape is <code>F = (A·B) + C</code> — check your actual gate shapes (D-shape = AND, curved-back = OR) against this before committing.</li>
+    </ul>
+    <table>
+      <tr><th>A</th><th>B</th><th>C</th><th>F</th></tr>
+      <tr><td>0</td><td>0</td><td>0</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>0</td><td>1</td><td class="one">1</td></tr>
+      <tr><td>0</td><td>1</td><td>0</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>1</td><td>1</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>0</td><td>0</td><td class="zero">0</td></tr>
+      <tr><td>1</td><td>0</td><td>1</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>1</td><td>0</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>1</td><td>1</td><td class="one">1</td></tr>
+    </table>
+    <p style="color:var(--ink-dim); font-size:12px;">Method to remember: trace each wire, label intermediate node outputs, then read the final gate.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. Derive and simplify the Boolean expression for the logic diagram <span class="m">5 marks</span></h3>
+    <ul class="steps">
+      <li>Label each gate's output as you go: the two AND gates near the input produce e.g. <code>AB</code> and <code>BC</code>; these feed an OR gate; the OR's output combines with the feedback/other branch through a final gate to give D.</li>
+      <li>A layout matching your figure (two AND gates into an OR, then into a final AND/OR with a NOT branch) typically reduces to a form like <code>D = AB + BC = B(A + C)</code> after factoring — apply the distributive law to pull out the common variable.</li>
+      <li><strong>Simplification law used:</strong> Distributive law, <code>XY + XZ = X(Y+Z)</code>.</li>
+    </ul>
+    <span class="result">D = B(A + C) — always try factoring common terms first, it's the fastest simplification route</span>
+  </div>
+
+  <div class="card">
+    <h3>3a. f(A,B,C,D) = Σm(3,4,6,8,9,12,14) — K-map <span class="m">2 marks</span></h3>
+    <div class="kmap" style="grid-template-columns:44px repeat(4,44px);">
+      <div class="h"></div><div class="h">CD=00</div><div class="h">01</div><div class="h">11</div><div class="h">10</div>
+      <div class="h">AB=00</div><div>0</div><div class="one">1</div><div class="zero">0</div><div class="zero">0</div>
+      <div class="h">01</div><div class="one">1</div><div>0</div><div>0</div><div class="one">1</div>
+      <div class="h">11</div><div class="one">1</div><div>0</div><div>0</div><div class="one">1</div>
+      <div class="h">10</div><div class="one">1</div><div class="one">1</div><div>0</div><div>0</div>
+    </div>
+    <ul class="steps">
+      <li>Group the four corner-adjacent 1s (m4,6,12,14) → they share B=1, D=0 → term <code>B·D̄</code></li>
+      <li>Group m8,9,12 with A=1,B=1... actually group m8,9 (AB̄C̄) pair and m8,12 pair → A=1,C̄,D̄ → <code>A·B̄·C̄</code></li>
+      <li>Group m3,12,14 relation — the leftover m3 pairs with none nearby except through don't-adjacency; it groups with m... (m3 sits alone-ish, pairs as AB̄CD with CD group) → gives <code>C·D·Ā·B̄</code></li>
+    </ul>
+    <span class="result">f = B·D̄ + A·B̄·C̄ + Ā·B̄·C·D</span>
+  </div>
+
+  <div class="card">
+    <h3>3b. f(A,B,C,D) = Σm(1,2,7,12,15) + d(5,9,10,11) <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>Don't-cares (d) can be treated as 0 or 1 — whichever makes the grouping bigger. Use this freedom to form the largest possible groups.</li>
+      <li>Using d5, d9, d10, d11 strategically to enlarge groups gives four 2-cell/4-cell groupings.</li>
+    </ul>
+    <span class="result">f = BCD + CB̄D̄ + DĀC̄ + ABC̄D̄</span>
+    <p style="color:var(--ink-dim); font-size:12px; margin-top:6px;">Verified by direct minimization — this is the minimal SOP form using the don't-cares optimally.</p>
+  </div>
+
+  <div class="card">
+    <h3>3c. f(A,B,C,D) = ΠM(1,2,5,11,13,15) <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>ΠM means product-of-maxterms — the listed numbers are where f = 0. Every other minterm (0,3,4,6,7,8,9,10,12,14) is where f = 1.</li>
+      <li>Plot those as 1s and group exactly as in a normal SOP K-map.</li>
+    </ul>
+    <span class="result">f = AD̄ + BD̄ + C̄D̄ + AB̄C̄ + ĀCD</span>
+    <p style="color:var(--ink-dim); font-size:12px; margin-top:6px;">If the question wants POS instead: complement the grouping of the 0-cells (the given maxterm positions) and write each group as a sum term.</p>
+  </div>
+
+  <div class="card">
+    <h3>4. Timing diagram → truth table → logic network for F(A,B,C) <span class="m">4 marks</span></h3>
+    <ul class="steps">
+      <li>Read the timing diagram column-by-column: at each time slice, note the level (high/low) of A, B, C simultaneously, then read F's level in that same slice.</li>
+      <li>Build the truth table row by row from these 8 (or however many) time slices — each unique ABC combination gives one row.</li>
+      <li>Once you have the truth table, treat it exactly like 3a/3b: write minterms where F=1, K-map, and simplify to get the logic network.</li>
+    </ul>
+    <p style="color:var(--ink-dim); font-size:13px;">This one depends on reading your specific waveform image precisely — the marks are mostly for correct table construction, not the final gate count. Go slice by slice, don't skip any transition.</p>
+  </div>
+</section>
+
+<!-- SECTION III -->
+<section class="block" id="s3">
+  <div class="sec-num">Section III</div>
+  <div class="sec-title">Sequential Logic</div>
+  <div class="sec-marks">10 marks</div>
+
+  <div class="card">
+    <h3>1. Symbol, truth table, characteristic equation of D and JK flip-flops <span class="m">4 marks</span></h3>
+    <table>
+      <tr><th>D</th><th>Qₙ₊₁</th></tr>
+      <tr><td>0</td><td class="zero">0</td></tr>
+      <tr><td>1</td><td class="one">1</td></tr>
+    </table>
+    <span class="result">D flip-flop: Qₙ₊₁ = D</span>
+    <table style="margin-top:14px;">
+      <tr><th>J</th><th>K</th><th>Qₙ₊₁</th></tr>
+      <tr><td>0</td><td>0</td><td>Qₙ (no change)</td></tr>
+      <tr><td>0</td><td>1</td><td class="zero">0 (reset)</td></tr>
+      <tr><td>1</td><td>0</td><td class="one">1 (set)</td></tr>
+      <tr><td>1</td><td>1</td><td>Q̄ₙ (toggle)</td></tr>
+    </table>
+    <span class="result">JK flip-flop: Qₙ₊₁ = J·Q̄ₙ + K̄·Qₙ</span>
+    <p style="color:var(--ink-dim); font-size:12px; margin-top:8px;">Symbols: both are drawn as a rectangle with clock input (triangle marker), D has one data input D; JK has two data inputs J and K, both edge-triggered with Q and Q̄ outputs.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. Using a D flip-flop to build a JK flip-flop <span class="m">6 marks</span></h3>
+    <ul class="steps">
+      <li><strong>Tip given:</strong> compare the two characteristic equations. D-FF: Qₙ₊₁ = D. JK-FF: Qₙ₊₁ = JQ̄ₙ + K̄Qₙ.</li>
+      <li>Since a D flip-flop just outputs whatever is on D at the next clock edge, we need external combinational logic that computes <code>D = J·Q̄ₙ + K̄·Qₙ</code> and feeds that into the D input.</li>
+      <li><strong>Circuit:</strong> take J and Q̄ into an AND gate; take K̄ (i.e., K through a NOT gate) and Q into a second AND gate; OR the two AND outputs together; connect that OR output to the D flip-flop's D input; feed the flip-flop's own Q output back as one of the AND gate inputs (that's the "Qₙ" feedback).</li>
+      <li>This feedback loop is the key structural idea: the flip-flop's current state feeds back into the combinational logic that decides its next state.</li>
+    </ul>
+    <span class="result">D = JQ̄ + K̄Q → this drives the D input; the D-FF then naturally reproduces JK behaviour</span>
+  </div>
+</section>
+
+<!-- SECTION IV -->
+<section class="block" id="s4">
+  <div class="sec-num">Section IV</div>
+  <div class="sec-title">Problem Analysis</div>
+  <div class="sec-marks">20 marks</div>
+
+  <div class="card">
+    <h3>1a. Decimal-to-BCD encoder: how many inputs/outputs? <span class="m">2 marks</span></h3>
+    <ul class="steps">
+      <li>Each decimal digit 0–9 has its own dedicated switch line — that's 10 possible active input lines.</li>
+      <li>BCD needs 4 bits to represent digits 0–9 (since 2³=8 is too few, 2⁴=16 covers it).</li>
+    </ul>
+    <span class="result">10 inputs (one per digit, 0–9), 4 outputs (BCD code B₃B₂B₁B₀)</span>
+  </div>
+
+  <div class="card">
+    <h3>1b. Truth table for each output <span class="m">2 marks</span></h3>
+    <table>
+      <tr><th>Active input</th><th>B₃</th><th>B₂</th><th>B₁</th><th>B₀</th></tr>
+      <tr><td>D0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>D1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+      <tr><td>D2</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+      <tr><td>D3</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+      <tr><td>D4</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+      <tr><td>D5</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td>D6</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+      <tr><td>D7</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td>D8</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>D9</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+    </table>
+    <p style="color:var(--ink-dim); font-size:12px;">Only one Dᵢ line is high at a time (that switch's closed logic-1); when Dᵢ=1, the row above shows that BCD output pattern.</p>
+  </div>
+
+  <div class="card">
+    <h3>1c. Minterm list for each output <span class="m">3 marks</span></h3>
+    <ul class="steps">
+      <li>Read down each output column above and note which decimal inputs give a 1.</li>
+    </ul>
+    <span class="result">B₃ = D8+D9 &nbsp; B₂ = D4+D5+D6+D7 &nbsp; B₁ = D2+D3+D6+D7 &nbsp; B₀ = D1+D3+D5+D7+D9</span>
+  </div>
+
+  <div class="card">
+    <h3>1d. Logic network for the encoder <span class="m">3 marks</span></h3>
+    <ul class="steps">
+      <li>An encoder needs no gates at all if you exploit OR logic directly: each output is simply an OR gate whose inputs are exactly the switch lines identified in 1c.</li>
+      <li>B₃ = OR(D8, D9); B₂ = OR(D4,D5,D6,D7); B₁ = OR(D2,D3,D6,D7); B₀ = OR(D1,D3,D5,D7,D9).</li>
+      <li>Draw four OR gates, one per output bit, each wired to its corresponding decimal input lines — that's the whole encoder.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>2a. Full adder truth table <span class="m">3 marks</span></h3>
+    <table>
+      <tr><th>A</th><th>B</th><th>Cᵢₙ</th><th>S</th><th>Cₙ</th></tr>
+      <tr><td>0</td><td>0</td><td>0</td><td class="zero">0</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>0</td><td>1</td><td class="one">1</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>1</td><td>0</td><td class="one">1</td><td class="zero">0</td></tr>
+      <tr><td>0</td><td>1</td><td>1</td><td class="zero">0</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>0</td><td>0</td><td class="one">1</td><td class="zero">0</td></tr>
+      <tr><td>1</td><td>0</td><td>1</td><td class="zero">0</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>1</td><td>0</td><td class="zero">0</td><td class="one">1</td></tr>
+      <tr><td>1</td><td>1</td><td>1</td><td class="one">1</td><td class="one">1</td></tr>
+    </table>
+    <p style="color:var(--ink-dim); font-size:12px;">S is 1 whenever an odd number of inputs are 1 (XOR pattern); Cₙ is 1 whenever at least two inputs are 1.</p>
+  </div>
+
+  <div class="card">
+    <h3>2b. K-map / POS form of the full adder outputs <span class="m">3 marks</span></h3>
+    <ul class="steps">
+      <li>S has a checkerboard K-map pattern (classic of XOR) — it doesn't simplify via grouping; its minimal SOP is already <code>S = ĀB̄Cᵢₙ + ĀBC̄ᵢₙ + AB̄C̄ᵢₙ + ABCᵢₙ</code>, i.e. <code>S = A⊕B⊕Cᵢₙ</code>.</li>
+      <li>For POS: find the 0-cells of S (000,011,101,110) and group them the same way — they also form no adjacent pairs, giving <code>S = (A+B+Cᵢₙ)(A+B̄+C̄ᵢₙ)(Ā+B+C̄ᵢₙ)(Ā+B̄+Cᵢₙ)</code>.</li>
+      <li>Cₙ's 0-cells are 000,001,010,100 → POS form: <code>Cₙ = (A+B+Cᵢₙ)(A+B̄)(Ā+B)... </code> which simplifies to <code>Cₙ = (A+B)(A+Cᵢₙ)(B+Cᵢₙ)</code>.</li>
+    </ul>
+    <span class="result">S = A⊕B⊕Cᵢₙ &nbsp;&nbsp; Cₙ = AB + ACᵢₙ + BCᵢₙ = (A+B)(A+Cᵢₙ)(B+Cᵢₙ)</span>
+  </div>
+
+  <div class="card">
+    <h3>2c. Logic circuit of the full adder <span class="m">4 marks</span></h3>
+    <ul class="steps">
+      <li>Build it from two half adders: HA1 takes A, B → produces partial sum P = A⊕B and partial carry G1 = AB.</li>
+      <li>HA2 takes P and Cᵢₙ → produces final sum S = P⊕Cᵢₙ and partial carry G2 = P·Cᵢₙ.</li>
+      <li>Final carry-out: OR the two partial carries — <code>Cₙ = G1 + G2 = AB + Cᵢₙ(A⊕B)</code>, which is algebraically identical to <code>AB + ACᵢₙ + BCᵢₙ</code>.</li>
+    </ul>
+    <span class="result">Two XOR gates (cascaded) for S, two AND gates + one OR gate for Cₙ — the standard two-half-adder full adder.</span>
+  </div>
+</section>
+
+<!-- DEEP DIVE -->
+<section class="block" id="s7">
+  <div class="sec-num">Deep Dive</div>
+  <div class="sec-title">Why K-maps and Flip-Flops Work</div>
+  <div class="sec-marks">The reasoning behind the recipes — this is what actually sticks</div>
+
+  <div class="card">
+    <h3>K-maps: what a "grouping" really means</h3>
+    <ul class="steps">
+      <li>A K-map is just a truth table redrawn so that <strong>every adjacent cell differs by exactly one variable</strong> (that's why the column headers go 00, 01, 11, 10 — not 00, 01, 10, 11. That ordering is called Gray code, and it's the entire trick).</li>
+      <li>Because neighbouring cells differ by one bit, two adjacent 1-cells means: "this output is 1 regardless of that one differing variable." That's literally the Boolean law <code>XY + XY̅ = X</code> in visual form — grouping two cells lets you drop a variable.</li>
+      <li>Grouping 4 cells drops 2 variables, grouping 8 drops 3, and so on — always powers of 2. A group of 3 or 5 is invalid because it doesn't correspond to any clean algebraic cancellation.</li>
+      <li><strong>Rule of thumb for exam speed:</strong> always circle the biggest legal group first (containing powers-of-2 cells: 1,2,4,8,16), even if it overlaps a group you already made. Overlap is fine and often required — the same 1 can belong to multiple groups.</li>
+      <li>Corners of the map count as adjacent to each other (the map wraps around, top-to-bottom and left-to-right) — this trips people up constantly. Don't forget wrap-around groupings.</li>
+    </ul>
+    <div class="badge-tip">Exam tip</div>
+    <p style="color:var(--ink-dim); font-size:13px;">Every 1 must be covered by at least one group, but you don't need every possible group — just enough groups to cover every 1 with the fewest, largest groups (this gives the minimal SOP).</p>
+  </div>
+
+  <div class="card">
+    <h3>Don't-cares: the "free lunch" of K-maps</h3>
+    <ul class="steps">
+      <li>A don't-care exists because some input combination is guaranteed to never happen in that system (e.g. in BCD, codes 10–15 never occur, so any function of a BCD digit has don't-cares at those minterms).</li>
+      <li>You are never <em>forced</em> to include a don't-care in a group. Only use it when it helps you form a bigger group than you could otherwise. Leave the rest as if they were 0.</li>
+      <li>This is why don't-cares almost always shrink the final expression compared to treating them strictly as 0.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Flip-flops: why the "characteristic equation" is the real syllabus</h3>
+    <ul class="steps">
+      <li>Every flip-flop type is really just "a memory cell plus some input logic." The <strong>characteristic equation</strong> tells you exactly what the next state (Qₙ₊₁) will be, given the current state (Qₙ) and the inputs.</li>
+      <li>D flip-flop: Qₙ₊₁ = D. This is the simplest possible memory — whatever you put on D shows up on Q at the next clock edge. No dependency on the old state at all.</li>
+      <li>JK flip-flop: Qₙ₊₁ = JQ̄ₙ + K̄Qₙ. Read this as two cases OR'd together — "if J=1 AND we were 0, go to 1" OR "if K=0 AND we were 1, stay 1." This is precisely why JK avoids the "forbidden state" problem that a simpler SR latch has (J=K=1 gives a well-defined toggle, not an undefined race).</li>
+      <li><strong>The conversion trick (D→JK, or any flip-flop→any other):</strong> write the target flip-flop's characteristic equation, then design combinational logic that computes that exact equation from the inputs you have, and feed it into your available flip-flop's data input. This "excitation table" method generalizes to converting between any two flip-flop types — it's not just a JK/D party trick.</li>
+    </ul>
+    <div class="badge-tip">Common exam variant</div>
+    <p style="color:var(--ink-dim); font-size:13px;">You could just as easily be asked to build a T flip-flop from a JK (T flip-flop: Qₙ₊₁ = T⊕Qₙ, achieved by tying J=K=T), or a D from a JK (tie J=D, K=D̄). Same method, different target equation.</p>
+  </div>
+
+  <div class="card">
+    <h3>Full adder: why two half adders is the standard build</h3>
+    <ul class="steps">
+      <li>A half adder only handles 2 inputs (A,B) — it can't accept a carry-in, so it's useless alone for multi-bit addition.</li>
+      <li>Chaining two half adders lets the second one absorb the carry-in from the previous stage — this is exactly how ripple-carry adders are built for wider numbers (chain N full adders to add N-bit numbers).</li>
+      <li>Recognizing "S = XOR of all inputs, carry = majority function" is a pattern that reappears constantly in digital design — it's worth memorizing structurally, not just as a formula.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PRACTICE SET -->
+<section class="block" id="s8">
+  <div class="sec-num">Practice</div>
+  <div class="sec-title">Fresh Problem Set</div>
+  <div class="sec-marks">New numbers, same techniques — solve first, then tap to reveal</div>
+
+  <div class="card">
+    <h3>P1. Number system conversion</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">Convert (321)₁₀ to hexadecimal and octal.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">321÷16=20 r1, 20÷16=1 r4, 1÷16=0 r1 → <strong>141₁₆</strong>. 321÷8=40 r1, 40÷8=5 r0, 5÷8=0 r5 → <strong>501₈</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P2. Hex to decimal</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">Convert (1F3)₁₆ to decimal.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">1×16² + F(15)×16¹ + 3×16⁰ = 256 + 240 + 3 = <strong>499₁₀</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P3. Binary arithmetic</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">A = 101101₂ (45), B = 1101₂ (13). Find A+B, A−B, A×B, A÷B in binary.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">A+B = 111010 (58) · A−B = 100000 (32) · A×B = 1001001001 (585) · A÷B = 11 (3) remainder 110 (6)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P4. K-map simplification</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">f(A,B,C,D) = Σm(0,2,5,7,8,10,13,15). Simplify to minimal SOP.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">Notice every minterm has A,C,D matching a fixed XOR-with-B pattern → f = BD + B̅D̅ (this is B XNOR D — a good example of a K-map collapsing to a 2-variable expression even though 4 variables were given)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P5. K-map simplification</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">f(A,B,C,D) = Σm(1,3,4,6,9,11,12,14). Simplify to minimal SOP.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">f = BD̅ + B̅D — this is B XOR D. Compare with P4: same variable pair, opposite parity pattern. Recognizing XOR/XNOR "checkerboard" patterns instantly saves K-map time in the exam.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>P6. Flip-flop conversion</h3>
+    <p style="color:var(--ink-dim); font-size:13px;">Design a T flip-flop using a JK flip-flop.</p>
+  </div>
+  <div class="flip" style="margin-bottom:16px;">
+    <div class="flip-inner">
+      <div class="flip-face flip-front">Tap to reveal solution<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">T flip-flop equation: Qₙ₊₁ = T⊕Qₙ. Tie J=T and K=T (same signal into both inputs). Check: T=0 → J=K=0 → hold (matches T=0 meaning "no change"). T=1 → J=K=1 → toggle (matches T=1 meaning "flip"). No extra gates needed — just wire T to both J and K.</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="block" id="s5">
+  <div class="sec-num">Self-check</div>
+  <div class="sec-title">Quick Quiz</div>
+  <div class="sec-marks">Tap an answer — no penalty for guessing, that's what this is for</div>
+  <div id="quizContainer"></div>
+</section>
+
+<!-- FLASHCARDS -->
+<section class="block" id="s6">
+  <div class="sec-num">Drill</div>
+  <div class="sec-title">Flashcards</div>
+  <div class="sec-marks">Tap a card to flip it</div>
+  <div id="flipContainer"></div>
+</section>
+
+</main>
+
+<footer>EEC330 · Prof. Feudjio · June 2026 resit paper — worked solutions for study purposes</footer>
+
+<script>
+// ---- TOC active state + scroll spy ----
+const tocButtons = document.querySelectorAll('#toc button');
+const sections = [...document.querySelectorAll('section.block')];
+tocButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById(btn.dataset.target).scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+function updateActive(){
+  let idx = 0;
+  const y = window.scrollY + 100;
+  sections.forEach((s,i)=>{ if(s.offsetTop <= y) idx = i; });
+  tocButtons.forEach(b=>b.classList.remove('active'));
+  tocButtons[idx].classList.add('active');
+  const scrolled = (window.scrollY) / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('progressBar').style.width = Math.min(100, Math.max(0, scrolled*100)) + '%';
+}
+window.addEventListener('scroll', updateActive);
+updateActive();
+
+// ---- Quiz ----
+const quizData = [
+  {
+    q: "Convert (A6C2)₁₆ directly to binary — what's the fastest method?",
+    opts: ["Convert to decimal first, then to binary", "Each hex digit maps to exactly 4 binary bits", "Divide repeatedly by 2", "It can't be done directly"],
+    correct: 1,
+    fb: "Hex and binary share a power-of-2 base relationship (16=2⁴), so each hex digit converts independently to a fixed 4-bit group — no detour through decimal needed."
+  },
+  {
+    q: "In a K-map, what's a 'don't care' (d) term used for?",
+    opts: ["It always counts as a 0", "It always counts as a 1", "It can be treated as 0 or 1, whichever gives a bigger/simpler grouping", "It means the output is undefined and unusable"],
+    correct: 2,
+    fb: "Don't-cares are free flexibility — the input combination never actually occurs, so you assign it whichever value helps you form the largest possible group and the simplest expression."
+  },
+  {
+    q: "What is the characteristic equation of a JK flip-flop?",
+    opts: ["Qₙ₊₁ = D", "Qₙ₊₁ = JQ̄ₙ + K̄Qₙ", "Qₙ₊₁ = J + K", "Qₙ₊₁ = Q̄ₙ always"],
+    correct: 1,
+    fb: "Qₙ₊₁ = JQ̄ₙ + K̄Qₙ captures all four JK behaviours: hold (00), reset (01), set (10), toggle (11)."
+  },
+  {
+    q: "To build a JK flip-flop from a D flip-flop, what do you feed into D?",
+    opts: ["D = J only", "D = J·K", "D = JQ̄ₙ + K̄Qₙ (the JK characteristic equation itself)", "D = Q̄ₙ"],
+    correct: 2,
+    fb: "Since a D-FF always sets Qₙ₊₁ = D, feeding it exactly the JK next-state equation makes it behave identically to a JK flip-flop — that's the whole trick."
+  },
+  {
+    q: "For a full adder, which expression correctly gives the Sum output?",
+    opts: ["S = AB + Cᵢₙ", "S = A⊕B⊕Cᵢₙ", "S = A+B+Cᵢₙ", "S = AB·Cᵢₙ"],
+    correct: 1,
+    fb: "Sum is 1 whenever an odd number of the three inputs are 1 — that's exactly the definition of three-input XOR."
+  },
+  {
+    q: "How many inputs does a decimal-to-BCD encoder need?",
+    opts: ["4", "8", "10", "16"],
+    correct: 2,
+    fb: "One dedicated input line per decimal digit, 0 through 9 — that's 10 inputs feeding into 4 BCD output lines."
+  }
+];
+
+const quizContainer = document.getElementById('quizContainer');
+quizData.forEach((item, qi)=>{
+  const card = document.createElement('div');
+  card.className = 'quiz-card';
+  card.innerHTML = `<div class="quiz-q">${qi+1}. ${item.q}</div><div class="quiz-opts"></div><div class="quiz-fb"></div>`;
+  const optsDiv = card.querySelector('.quiz-opts');
+  const fb = card.querySelector('.quiz-fb');
+  item.opts.forEach((opt, oi)=>{
+    const b = document.createElement('button');
+    b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      const buttons = optsDiv.querySelectorAll('button');
+      buttons.forEach(x=>x.disabled = true);
+      if(oi === item.correct){
+        b.classList.add('correct');
+        fb.textContent = "✓ " + item.fb;
+        fb.style.color = 'var(--lo)';
+      } else {
+        b.classList.add('wrong');
+        buttons[item.correct].classList.add('correct');
+        fb.textContent = "✗ " + item.fb;
+        fb.style.color = '#e05252';
+      }
+    });
+    optsDiv.appendChild(b);
+  });
+  quizContainer.appendChild(card);
+});
+
+// ---- Flashcards ----
+const flipData = [
+  {f:"567₁₀ → hex", b:"237₁₆ (divide by 16 repeatedly, read remainders bottom-up)"},
+  {f:"567₁₀ → octal", b:"1067₈ (divide by 8 repeatedly)"},
+  {f:"Fastest hex↔binary conversion trick", b:"Each hex digit = exactly 4 bits, direct lookup, no decimal detour"},
+  {f:"D flip-flop characteristic equation", b:"Qₙ₊₁ = D"},
+  {f:"JK flip-flop characteristic equation", b:"Qₙ₊₁ = JQ̄ₙ + K̄Qₙ"},
+  {f:"JK truth table: J=1,K=1 does what?", b:"Toggle — Qₙ₊₁ = Q̄ₙ"},
+  {f:"Building JK from D: what goes into D?", b:"D = JQ̄ₙ + K̄Qₙ, with Qₙ fed back from the flip-flop's own output"},
+  {f:"Full adder Sum equation", b:"S = A ⊕ B ⊕ Cᵢₙ"},
+  {f:"Full adder Carry-out equation", b:"Cₙ = AB + ACᵢₙ + BCᵢₙ = (A+B)(A+Cᵢₙ)(B+Cᵢₙ)"},
+  {f:"Decimal-to-BCD encoder: inputs & outputs", b:"10 inputs (digits 0–9), 4 outputs (B₃B₂B₁B₀)"},
+  {f:"K-map don't-care rule of thumb", b:"Assign 0 or 1 — whichever lets you draw the biggest group"},
+  {f:"ΠM(...) notation means", b:"Product of Maxterms — the listed numbers are where f = 0; everything else is where f = 1"},
+];
+// Static flip cards (Practice Set section) — attach handlers directly
+document.querySelectorAll('#s8 .flip').forEach(wrap=>{
+  wrap.addEventListener('click', ()=> wrap.classList.toggle('flipped'));
+});
+
+const flipContainer = document.getElementById('flipContainer');
+flipData.forEach(item=>{
+  const wrap = document.createElement('div');
+  wrap.className = 'flip';
+  wrap.innerHTML = `
+    <div class="flip-inner">
+      <div class="flip-face flip-front">${item.f}<span class="flip-hint">tap</span></div>
+      <div class="flip-face flip-back">${item.b}</div>
+    </div>`;
+  wrap.addEventListener('click', ()=> wrap.classList.toggle('flipped'));
+  flipContainer.appendChild(wrap);
+});
+</script>
+</body>
+</html>

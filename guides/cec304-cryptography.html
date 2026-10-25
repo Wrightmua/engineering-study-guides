@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CEC304 — Introduction to Cryptography</title>
+<style>
+  :root{
+    --paper:#f7f3ea;
+    --ink:#1f2421;
+    --ink-soft:#4a504c;
+    --rule:#cfc6b0;
+    --accent:#9a3324;       /* brick red, echoes the slide-deck red headers */
+    --accent-soft:#c8714f;
+    --green:#3c6b50;        /* used for "correct" */
+    --green-bg:#e7efe5;
+    --wrong:#9a3324;
+    --wrong-bg:#f3e4df;
+    --mono-bg:#efe9da;
+    --card:#fffdf8;
+    --shadow: 0 2px 0 rgba(31,36,33,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);}
+  body{
+    font-family: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.55;
+    padding:0 0 80px 0;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:36px 24px 0 24px;}
+
+  /* ---------- Header / nav ---------- */
+  .masthead{
+    border-bottom:3px double var(--ink);
+    padding-bottom:14px;
+    margin-bottom:6px;
+  }
+  .masthead .kicker{
+    font-family: "Courier New", monospace;
+    letter-spacing:0.12em;
+    font-size:12px;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .masthead h1{
+    font-size:30px;
+    margin:4px 0 2px 0;
+    font-weight:600;
+  }
+  .masthead .sub{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    font-style:italic;
+  }
+
+  .progress-row{
+    display:flex; align-items:center; gap:10px;
+    margin:14px 0 18px 0;
+    font-family:"Courier New",monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .progress-track{
+    flex:1; height:6px; background:var(--rule); border-radius:3px; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; background:var(--accent); width:0%;
+    transition:width .4s ease;
+  }
+
+  nav.toc{
+    display:flex; flex-wrap:wrap; gap:6px 10px;
+    margin-bottom:28px;
+    font-family:"Courier New",monospace;
+    font-size:12px;
+  }
+  nav.toc button{
+    background:var(--card);
+    border:1px solid var(--rule);
+    color:var(--ink-soft);
+    padding:5px 10px;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:12px;
+  }
+  nav.toc button.active{
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:700;
+  }
+  nav.toc button:hover{ color:var(--accent); }
+
+  /* ---------- Section ---------- */
+  section.module{ display:none; }
+  section.module.active{ display:block; animation:fade .25s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .module h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--accent);
+    border-bottom:1px solid var(--rule);
+    padding-bottom:8px;
+    margin:34px 0 16px 0;
+  }
+  .module h2 .num{
+    display:inline-block;
+    background:var(--accent);
+    color:var(--paper);
+    width:20px;height:20px;
+    text-align:center;
+    line-height:20px;
+    border-radius:50%;
+    font-size:11px;
+    margin-right:8px;
+  }
+  .module h3{
+    font-size:17px;
+    margin:22px 0 8px 0;
+    color:var(--ink);
+  }
+  .module p{ margin:8px 0; }
+  .module ul, .module ol{ margin:8px 0; padding-left:22px; }
+  .module li{ margin:4px 0; }
+
+  .intuition{
+    background:var(--card);
+    border-left:3px solid var(--accent-soft);
+    padding:12px 16px;
+    margin:14px 0;
+    border-radius:0 4px 4px 0;
+    font-size:15px;
+  }
+  .intuition .tag{
+    font-family:"Courier New",monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent-soft);
+    display:block;
+    margin-bottom:4px;
+  }
+
+  .math{
+    background:var(--mono-bg);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:10px 14px;
+    font-family:"Cambria Math","Georgia",serif;
+    font-size:16px;
+    text-align:center;
+    margin:10px 0;
+  }
+  .mono{
+    font-family:"Courier New",monospace;
+    background:var(--mono-bg);
+    padding:1px 5px;
+    border-radius:3px;
+    font-size:0.92em;
+  }
+
+  table.refs{
+    border-collapse:collapse;
+    width:100%;
+    margin:10px 0;
+    font-size:14px;
+  }
+  table.refs th, table.refs td{
+    border:1px solid var(--rule);
+    padding:5px 8px;
+    text-align:center;
+  }
+  table.refs th{ background:var(--mono-bg); }
+
+  .flag{
+    background:#f6ecdf;
+    border:1px solid #d8c190;
+    border-left:3px solid #b8893a;
+    padding:10px 14px;
+    margin:14px 0;
+    border-radius:0 4px 4px 0;
+    font-size:14px;
+  }
+  .flag .tag{
+    font-family:"Courier New",monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#9a6c1f;
+    display:block;
+    margin-bottom:3px;
+  }
+
+  /* ---------- Question cards ---------- */
+  .qcard{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:16px 18px;
+    margin:18px 0;
+    box-shadow:var(--shadow);
+  }
+  .qcard .qlabel{
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .qcard .qtext{ font-size:15.5px; margin-bottom:10px; }
+  .opts{ display:flex; flex-direction:column; gap:7px; }
+  .opt{
+    text-align:left;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:8px 12px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:14.5px;
+    color:var(--ink);
+    transition:background .15s, border-color .15s;
+  }
+  .opt:hover{ border-color:var(--accent-soft); }
+  .opt.correct{ background:var(--green-bg); border-color:var(--green); color:#234032; font-weight:600;}
+  .opt.wrong{ background:var(--wrong-bg); border-color:var(--wrong); color:#6b231a; }
+  .opt:disabled{ cursor:default; }
+
+  .feedback{
+    margin-top:10px;
+    padding:9px 12px;
+    border-radius:4px;
+    font-size:14px;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:var(--green-bg); color:#234032; border:1px solid var(--green); }
+  .feedback.bad{ background:var(--wrong-bg); color:#6b231a; border:1px solid var(--wrong); }
+
+  /* numeric-entry question */
+  .numrow{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .numrow input[type=text]{
+    font-family:"Courier New",monospace;
+    font-size:14.5px;
+    padding:7px 10px;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    width:140px;
+    background:var(--paper);
+  }
+  .numrow button{
+    font-family:"Courier New",monospace;
+    font-size:12.5px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .numrow button:hover{ background:var(--accent); }
+  .numrow .reveal-btn{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1px solid var(--rule);
+  }
+  .numrow .reveal-btn:hover{ color:var(--accent); border-color:var(--accent-soft); background:transparent;}
+
+  details.solution{
+    margin-top:10px;
+    font-size:14px;
+    background:var(--mono-bg);
+    border-radius:4px;
+    padding:6px 12px;
+  }
+  details.solution summary{
+    cursor:pointer;
+    font-family:"Courier New",monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    padding:4px 0;
+  }
+  details.solution[open] summary{ color:var(--accent); }
+  details.solution .sol-body{ padding:6px 2px 8px 2px; }
+
+  /* drag/order question (used in practice section) */
+  .order-list{ list-style:none; padding:0; margin:10px 0; display:flex; flex-direction:column; gap:6px;}
+  .order-list li{
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:7px 10px;
+    cursor:grab;
+    font-size:14px;
+    font-family:"Courier New",monospace;
+  }
+  .order-list li.dragging{ opacity:0.4; }
+  .order-list li.placed-correct{ border-color:var(--green); background:var(--green-bg); }
+
+  /* ---------- footer nav buttons ---------- */
+  .stepnav{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:34px; padding-top:14px; border-top:1px solid var(--rule);
+  }
+  .stepnav button{
+    font-family:"Courier New",monospace;
+    font-size:13px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:9px 16px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .stepnav button:disabled{ opacity:0.3; cursor:default; }
+  .stepnav button:not(:disabled):hover{ background:var(--accent); }
+  .stepnav .midlabel{ font-family:"Courier New",monospace; font-size:11px; color:var(--ink-soft); }
+
+  .score-pill{
+    display:inline-block;
+    font-family:"Courier New",monospace;
+    font-size:11px;
+    background:var(--mono-bg);
+    border:1px solid var(--rule);
+    border-radius:12px;
+    padding:2px 10px;
+    color:var(--ink-soft);
+  }
+
+  /* final summary panel */
+  .summary-panel{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    padding:20px;
+    margin-top:18px;
+    text-align:center;
+  }
+  .summary-panel .big{
+    font-size:38px;
+    color:var(--accent);
+    font-weight:700;
+  }
+  .reset-btn{
+    margin-top:10px;
+    font-family:"Courier New",monospace;
+    font-size:12px;
+    background:transparent;
+    border:1px solid var(--rule);
+    color:var(--ink-soft);
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .reset-btn:hover{ color:var(--accent); border-color:var(--accent-soft); }
+
+  ::selection{ background:#e3c8b8; }
+
+  @media (max-width:560px){
+    .wrap{ padding:24px 14px 0 14px; }
+    .masthead h1{ font-size:24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="kicker">CEC304 · Interactive Study Companion</span>
+    <h1>Introduction to Cryptography</h1>
+    <div class="sub">Definitions &amp; cryptanalysis · substitution ciphers · divisibility &amp; GCD · modular arithmetic · elliptic curves</div>
+  </div>
+
+  <div class="progress-row">
+    <span id="progress-label">Section 1 of 7</span>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span class="score-pill" id="score-pill">score 0 / 0</span>
+  </div>
+
+  <nav class="toc" id="toc"></nav>
+
+  <div id="modules-host"></div>
+
+  <div class="stepnav">
+    <button id="prevBtn">&larr; back</button>
+    <span class="midlabel" id="midlabel"></span>
+    <button id="nextBtn">next &rarr;</button>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================================
+   QUESTION ENGINE
+   Each question type renders itself and reports into a shared score
+   tracker keyed by a unique id, so re-visiting a section doesn't
+   double count, and the progress bar / score pill reflect real state.
+===================================================================== */
+
+const SCORE = { answered: {}, correct: {} }; // keyed by question id -> bool
+
+function totalScore(){
+  const ids = Object.keys(SCORE.answered);
+  const correct = ids.filter(id => SCORE.correct[id]).length;
+  return { correct, total: ids.length };
+}
+
+function refreshScorePill(){
+  const { correct, total } = totalScore();
+  document.getElementById('score-pill').textContent = `score ${correct} / ${total}`;
+}
+
+/* ---- Multiple choice ---- */
+function renderMCQ(container, q){
+  // q = {id, label, text, options:[{text, correct, why}], }
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.innerHTML = `
+    <div class="qlabel"><span>${q.label}</span><span>multiple choice</span></div>
+    <div class="qtext">${q.text}</div>
+    <div class="opts"></div>
+    <div class="feedback"></div>
+  `;
+  const optsHost = card.querySelector('.opts');
+  const fb = card.querySelector('.feedback');
+
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      // lock all
+      [...optsHost.children].forEach(b => b.disabled = true);
+      if (opt.correct){
+        btn.classList.add('correct');
+        fb.className = 'feedback show good';
+        fb.textContent = '✓ Correct. ' + (opt.why || '');
+        SCORE.correct[q.id] = true;
+      } else {
+        btn.classList.add('wrong');
+        fb.className = 'feedback show bad';
+        fb.textContent = '✗ Not quite. ' + (opt.why || '');
+        SCORE.correct[q.id] = false;
+        // reveal correct one
+        const correctIdx = q.options.findIndex(o => o.correct);
+        if (correctIdx > -1) optsHost.children[correctIdx].classList.add('correct');
+      }
+      SCORE.answered[q.id] = true;
+      refreshScorePill();
+    });
+    optsHost.appendChild(btn);
+  });
+
+  container.appendChild(card);
+}
+
+/* ---- Numeric entry ---- */
+function renderNumeric(container, q){
+  // q = {id, label, text, accept: [array of acceptable strings, normalized], hint, solution}
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.innerHTML = `
+    <div class="qlabel"><span>${q.label}</span><span>your answer</span></div>
+    <div class="qtext">${q.text}</div>
+    <div class="numrow">
+      <input type="text" placeholder="${q.placeholder || 'type your answer'}" />
+      <button class="check-btn">check</button>
+      <button class="reveal-btn">show solution</button>
+    </div>
+    <div class="feedback"></div>
+    ${q.solution ? `<details class="solution"><summary>Worked solution</summary><div class="sol-body">${q.solution}</div></details>` : ''}
+  `;
+  const input = card.querySelector('input');
+  const checkBtn = card.querySelector('.check-btn');
+  const revealBtn = card.querySelector('.reveal-btn');
+  const fb = card.querySelector('.feedback');
+  const details = card.querySelector('details.solution');
+
+  function normalize(s){
+    return s.trim().toLowerCase().replace(/\s+/g,'').replace(/^\(|\)$/g,'');
+  }
+
+  checkBtn.addEventListener('click', () => {
+    const val = normalize(input.value);
+    if (!val){
+      fb.className = 'feedback show bad';
+      fb.textContent = 'Type an answer first.';
+      return;
+    }
+    const ok = q.accept.some(a => normalize(a) === val);
+    SCORE.answered[q.id] = true;
+    SCORE.correct[q.id] = ok;
+    if (ok){
+      fb.className = 'feedback show good';
+      fb.textContent = '✓ Correct.' + (q.confirm ? ' ' + q.confirm : '');
+    } else {
+      fb.className = 'feedback show bad';
+      fb.textContent = '✗ Not yet — try again, or open the worked solution below.';
+    }
+    refreshScorePill();
+  });
+
+  revealBtn.addEventListener('click', () => {
+    if (details) details.open = true;
+  });
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') checkBtn.click(); });
+
+  container.appendChild(card);
+}
+
+/* ---- True / False quick-check ---- */
+function renderTF(container, q){
+  renderMCQ(container, {
+    id:q.id, label:q.label, text:q.text,
+    options:[
+      {text:'True', correct:q.answer===true, why:q.why},
+      {text:'False', correct:q.answer===false, why:q.why}
+    ]
+  });
+}
+
+/* ---- Fill-in worked-step (sequence of small numeric blanks) ---- */
+function renderSteps(container, q){
+  // q = {id, label, text, steps:[{prompt, accept:[...]}], solution}
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.innerHTML = `
+    <div class="qlabel"><span>${q.label}</span><span>step-through</span></div>
+    <div class="qtext">${q.text}</div>
+    <div class="steps-host"></div>
+    ${q.solution ? `<details class="solution"><summary>Full worked solution</summary><div class="sol-body">${q.solution}</div></details>` : ''}
+  `;
+  const host = card.querySelector('.steps-host');
+
+  q.steps.forEach((st, i) => {
+    const row = document.createElement('div');
+    row.className = 'numrow';
+    row.style.margin = '8px 0';
+    row.innerHTML = `
+      <span style="font-size:14px;min-width:160px;">${st.prompt}</span>
+      <input type="text" style="width:110px"/>
+      <button class="check-btn">check</button>
+      <span class="step-fb" style="font-family:'Courier New',monospace;font-size:12px;"></span>
+    `;
+    const input = row.querySelector('input');
+    const btn = row.querySelector('.check-btn');
+    const fb = row.querySelector('.step-fb');
+    const stepId = q.id + '-step' + i;
+
+    function normalize(s){ return s.trim().toLowerCase().replace(/\s+/g,''); }
+
+    btn.addEventListener('click', () => {
+      const val = normalize(input.value);
+      const ok = st.accept.some(a => normalize(a) === val);
+      SCORE.answered[stepId] = true;
+      SCORE.correct[stepId] = ok;
+      fb.textContent = ok ? '✓' : '✗';
+      fb.style.color = ok ? 'var(--green)' : 'var(--wrong)';
+      refreshScorePill();
+    });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+
+    host.appendChild(row);
+  });
+
+  container.appendChild(card);
+}
+
+/* =====================================================================
+   CONTENT — one object per module (section). Each module has:
+   - id, title
+   - bodyHTML: the teaching prose (kept tight; full depth lives in chat)
+   - questions: array of {type, ...}
+===================================================================== */
+
+const MODULES = [
+
+/* ---------------- 0: Welcome ---------------- */
+{
+  id:'intro', title:'Start here',
+  bodyHTML:`
+    <h2><span class="num">0</span>Before you begin</h2>
+    <p>This is a self-check companion to the full walkthrough — it follows your notes in the same order:
+    definitions &amp; cryptanalysis → substitution ciphers → divisibility &amp; GCD → modular arithmetic → elliptic curve arithmetic →
+    a final practice set.</p>
+    <p>Each section has a short refresher, then questions that check whether the <em>intuition</em> actually landed —
+    not just whether you can recite a formula. Numeric questions accept your typed answer and let you peek at a full
+    worked solution if you get stuck. Nothing here is timed.</p>
+    <div class="intuition"><span class="tag">how to use it</span>
+    Work top to bottom within a section before moving on — later sections lean on earlier ones constantly
+    (GCD feeds modular inverses; modular inverses feed elliptic curve arithmetic over finite fields).</div>
+  `,
+  questions: []
+},
+
+/* ---------------- 1: Definitions & basic principles ---------------- */
+{
+  id:'defs', title:'1 · Definitions',
+  bodyHTML:`
+    <h2><span class="num">1</span>Definitions and Basic Principles</h2>
+    <p>The whole field rests on one diagram: a <strong>plaintext</strong> P goes through <strong>encryption</strong> under a
+    secret <strong>key</strong> K to become <strong>ciphertext</strong> C; the same key lets the intended recipient run
+    <strong>decryption</strong> to recover P.</p>
+    <div class="math">E<sub>K</sub>(P) = C &nbsp;&nbsp;&nbsp; D<sub>K</sub>(C) = P</div>
+    <div class="intuition"><span class="tag">core idea</span>
+    The <em>algorithm</em> can be public. Secrecy lives entirely in the key — this is the seed of Kerckhoffs's
+    Principle, coming up in Section 2.</div>
+    <p><strong>Cryptology</strong> splits into two adversarial halves: <strong>cryptography</strong> (building secure
+    systems) and <strong>cryptanalysis</strong> (breaking them). Your notes are explicit that modern cryptologists
+    need real theoretical mathematics — which is exactly why the notes pivot into number theory next.</p>
+  `,
+  questions:[
+    { type:'mcq', id:'d1', label:'Q1',
+      text:'In E<sub>K</sub>(P) = C, what does the subscript K represent?',
+      options:[
+        {text:'The ciphertext length', correct:false, why:'Length isn\'t part of this notation at all.'},
+        {text:'The secret key controlling the encryption function', correct:true, why:'Both encryption and decryption are parameterized by the same key K.'},
+        {text:'The keyspace size', correct:false, why:'Keyspace size is a separate concept — the count of possible keys, not a specific key.'},
+        {text:'The cipher\'s name', correct:false, why:'K is a value, not a label for the algorithm.'}
+      ]
+    },
+    { type:'tf', id:'d2', label:'Q2',
+      text:'True or false: in a well-designed modern cryptosystem, the encryption algorithm itself should also be kept secret for the system to be secure.',
+      answer:false,
+      why:'This is the opposite of Kerckhoffs\'s Principle (Section 2): security should rest on the key alone, not on hiding the algorithm.'
+    },
+    { type:'mcq', id:'d3', label:'Q3',
+      text:'Which pairing correctly matches the two branches of cryptology to their definitions?',
+      options:[
+        {text:'Cryptography = breaking ciphertext; Cryptanalysis = keeping messages secure', correct:false, why:'This is reversed.'},
+        {text:'Cryptography = keeping messages secure; Cryptanalysis = breaking ciphertext', correct:true, why:'Exactly as your notes\' tree diagram on page 4 shows.'},
+        {text:'Both terms mean the same thing', correct:false, why:'They\'re explicitly opposite, adversarial halves of the field.'},
+        {text:'Cryptography only applies to historical ciphers', correct:false, why:'Cryptography covers all secure-system design, historical and modern.'}
+      ]
+    }
+  ]
+},
+
+/* ---------------- 2: Cryptanalysis ---------------- */
+{
+  id:'cryptanalysis', title:'2 · Cryptanalysis',
+  bodyHTML:`
+    <h2><span class="num">2</span>Cryptanalysis</h2>
+    <div class="intuition"><span class="tag">core idea — Kerckhoffs's Principle</span>
+    "The security of a cipher should rely on the secrecy of the key only." If the algorithm leaks (and eventually,
+    it will), the system should still be safe — because only the key needs to change.</div>
+    <p>The standard attacker model assumes the worst case: the attacker knows the full algorithm, has the
+    encryption/decryption equipment, and has arbitrarily many plaintext/ciphertext pairs from the same key.
+    Given that, a <strong>strong cipher</strong> is one where the best possible attack is still brute-force key search.</p>
+    <p>Attacks are ranked by how much access the attacker gets:</p>
+    <table class="refs">
+      <tr><th>Attack type</th><th>Attacker has…</th></tr>
+      <tr><td>Ciphertext-only</td><td>only ciphertext (weakest attacker)</td></tr>
+      <tr><td>Known-plaintext</td><td>matched plaintext/ciphertext pairs</td></tr>
+      <tr><td>Chosen-plaintext</td><td>can choose plaintext to encrypt</td></tr>
+      <tr><td>Adaptive chosen-plaintext</td><td>chooses a series, each informed by the last result (→ differential cryptanalysis)</td></tr>
+    </table>
+  `,
+  questions:[
+    { type:'mcq', id:'c1', label:'Q1',
+      text:'Which attack type gives the attacker the LEAST power?',
+      options:[
+        {text:'Adaptive chosen-plaintext', correct:false, why:'This is the strongest attacker, not the weakest.'},
+        {text:'Chosen-plaintext', correct:false, why:'The attacker actively picks plaintexts here — more power than ciphertext-only.'},
+        {text:'Ciphertext-only', correct:true, why:'Right — the attacker only ever sees ciphertext, with no plaintext access at all.'},
+        {text:'Known-plaintext', correct:false, why:'Here the attacker already has matched pairs, which is more than ciphertext alone.'}
+      ]
+    },
+    { type:'mcq', id:'c2', label:'Q2',
+      text:'A monoalphabetic substitution cipher is broken using letter-frequency statistics, with no access to any known plaintext. Which attack category is this?',
+      options:[
+        {text:'Known-plaintext attack', correct:false, why:'No plaintext is known in advance here.'},
+        {text:'Ciphertext-only attack', correct:true, why:'Exactly — frequency analysis on pure ciphertext, no plaintext needed. This is the classic break of substitution ciphers (Section 3).'},
+        {text:'Chosen-plaintext attack', correct:false, why:'The attacker isn\'t choosing what gets encrypted.'},
+        {text:'This isn\'t a cryptanalysis attack at all', correct:false, why:'It is — recovering plaintext or the key from ciphertext is the definition of cryptanalysis.'}
+      ]
+    },
+    { type:'tf', id:'c3', label:'Q3',
+      text:'True or false: Kerckhoffs\'s requirement that "compromise of the system should not inconvenience the correspondents" is essentially a restatement of the principle that security should depend only on the key.',
+      answer:true,
+      why:'If only the key (not the algorithm) is secret, losing the algorithm doesn\'t compromise anything — correspondents just keep using their key.'
+    }
+  ]
+},
+
+/* ---------------- 3: Substitution ciphers ---------------- */
+{
+  id:'subst', title:'3 · Substitution ciphers',
+  bodyHTML:`
+    <h2><span class="num">3</span>Substitution Ciphers</h2>
+    <div class="intuition"><span class="tag">core idea</span>
+    Replace every plaintext letter with another letter, by a fixed rule. The Caesar cipher is the simplest case:
+    shift every letter by a fixed amount — the shift amount is the key.</div>
+    <p>Your notes' worked example: key = 5 shifts. To <strong>decrypt</strong>, shift each ciphertext letter
+    back 5 positions toward the start of the alphabet (wrapping a→z if needed). Ciphertext
+    <span class="mono">jsjrdkfqqnslgfhpgwjfpymwtzlmnrrnsjsyqzhnzx</span> decrypts to
+    <em>"Enemy falling back. Breakthrough imminent. Lucius."</em></p>
+    <p>A <strong>general</strong> monoalphabetic substitution (any letter → any letter, no fixed shift) has a
+    keyspace of <span class="mono">26! ≈ 4.03 × 10²⁶</span> — astronomically large. Yet it's still broken easily,
+    via <strong>frequency analysis</strong>: English letter frequencies aren't uniform ('e' is most common), and a
+    monoalphabetic cipher preserves that frequency pattern under relabeling.</p>
+  `,
+  questions:[
+    { type:'numeric', id:'s1', label:'Q1', placeholder:'single letter',
+      text:'Caesar cipher, key = 5 (decrypt by shifting back 5 letters). What plaintext letter does ciphertext letter "k" decrypt to?',
+      accept:['f'],
+      solution:'Count back 5 from k: k→j→i→h→g→f. So k decrypts to f. (Check against the worked table: ciphertext k → plaintext f, matching "falling" in your notes\' decryption.)'
+    },
+    { type:'mcq', id:'s2', label:'Q2',
+      text:'Why is a monoalphabetic substitution cipher easy to break despite a keyspace of 26! (about 4×10²⁶)?',
+      options:[
+        {text:'Because computers can brute-force 26! quickly', correct:false, why:'26! is far too large for brute force to be the practical weakness here.'},
+        {text:'Because English letter frequencies are non-uniform, and the cipher preserves that pattern under relabeling', correct:true, why:'Exactly — frequency analysis sidesteps brute force entirely by exploiting non-random language.'},
+        {text:'Because the cipher always maps a→a', correct:false, why:'A general substitution cipher has no such restriction.'},
+        {text:'Because 26! is actually a small number', correct:false, why:'26! ≈ 4×10²⁶ is enormous — the point is the break doesn\'t rely on the keyspace size at all.'}
+      ]
+    },
+    { type:'numeric', id:'s3', label:'Q3', placeholder:'e.g. "this..."',
+      text:'Using the convention from page 12 of your notes (ciphertext in UPPERCASE is a Caesar shift of key 3), decrypt: "FRQJUDWXODWLRQV" (shift back 3 letters per character).',
+      accept:['congratulations'],
+      solution:'Shift each letter back 3: F→C, R→O, Q→N, J→G, U→R, D→A, W→T, X→U, O→L, D→A, W→T, L→I, R→O, Q→N, V→S.<br>Result: C O N G R A T U L A T I O N S → "congratulations".'
+    }
+  ]
+},
+
+/* ---------------- 4: Divisibility & GCD ---------------- */
+{
+  id:'gcd', title:'4 · Divisibility & GCD',
+  bodyHTML:`
+    <h2><span class="num">4</span>Divisibility and GCD</h2>
+    <div class="intuition"><span class="tag">core idea</span>
+    This section quietly sets up everything modular arithmetic needs. Divisibility formalizes "leftover after
+    dividing"; GCD formalizes "what factors two numbers share." The special case GCD = 1 — <strong>relatively
+    prime</strong> — turns out to be the single most important idea for Section 5.</div>
+    <div class="math">a = m⌊a/m⌋ + r &nbsp;&nbsp; (0 ≤ r &lt; m, r is the residue of a mod m)</div>
+    <p><strong>gcd(a,b)</strong> is the largest <span class="mono">d</span> such that <span class="mono">d|a</span> and
+    <span class="mono">d|b</span>, and every common divisor of a,b also divides d. Worked examples from your notes:
+    gcd(15,10)=5, gcd(18,10)=2, gcd(21,10)=1 — the last pair is <strong>relatively prime</strong>.</p>
+  `,
+  questions:[
+    { type:'numeric', id:'g1', label:'Q1', placeholder:'a number',
+      text:'Compute gcd(24, 18).',
+      accept:['6'],
+      solution:'Divisors of 24: 1,2,3,4,6,8,12,24. Divisors of 18: 1,2,3,6,9,18. Common divisors: 1,2,3,6. Largest = 6.'
+    },
+    { type:'tf', id:'g2', label:'Q2',
+      text:'True or false: if gcd(a,b) = 1, then a and b are called "relatively prime," and this means at least one of a or b must itself be a prime number.',
+      answer:false,
+      why:'Relatively prime only means they share no common factors besides 1 — neither number needs to be prime itself. E.g. gcd(8,9)=1, but neither 8 nor 9 is prime.'
+    },
+    { type:'numeric', id:'g3', label:'Q3', placeholder:'a number',
+      text:'Using the division equation a = m⌊a/m⌋ + r, what is the residue r when a = 29 and m = 7?',
+      accept:['1'],
+      solution:'⌊29/7⌋ = 4 (since 7×4=28 ≤ 29 < 35). So 29 = 7(4) + r → r = 29 − 28 = 1.'
+    },
+    { type:'mcq', id:'g4', label:'Q4',
+      text:'Which pair below is relatively prime?',
+      options:[
+        {text:'gcd(15, 10) — relatively prime', correct:false, why:'gcd(15,10) = 5, not 1.'},
+        {text:'gcd(18, 10) — relatively prime', correct:false, why:'gcd(18,10) = 2, not 1.'},
+        {text:'gcd(21, 10) — relatively prime', correct:true, why:'gcd(21,10) = 1 — exactly the example your notes flag as relatively prime.'},
+        {text:'None of these are relatively prime', correct:false, why:'One of the three options above does have gcd = 1.'}
+      ]
+    }
+  ]
+},
+
+/* ---------------- 5: Modular arithmetic ---------------- */
+{
+  id:'modarith', title:'5 · Modular arithmetic',
+  bodyHTML:`
+    <h2><span class="num">5</span>Modular Arithmetic</h2>
+    <div class="intuition"><span class="tag">core idea</span>
+    Addition in ℤₙ always has an inverse (y = n−x always works). Multiplication does NOT — and whether x has a
+    multiplicative inverse mod n comes down entirely to gcd(x,n) = 1. This is where Section 4's work pays off directly.</div>
+    <div class="math">x has a multiplicative inverse in ℤₙ &nbsp;⟺&nbsp; gcd(x, n) = 1</div>
+    <p>Special case: if <strong>n is prime</strong>, every nonzero x automatically satisfies gcd(x,n)=1, so
+    <em>every</em> nonzero element is invertible. This is exactly why elliptic curve cryptography (Section 6) insists
+    on a prime field size.</p>
+    <p>Your notes' contrast: in ℤ₁₁ (prime), every nonzero element has an inverse. In ℤ₉ (not prime, 9=3×3),
+    elements 3 and 6 have <em>no</em> inverse — because gcd(3,9)=3 and gcd(6,9)=3, neither is 1.</p>
+    <p><strong>Euler's totient φ(n)</strong> counts how many integers ≤ n are relatively prime to n. For n=7 (prime),
+    φ(7)=6 — and in general, for prime n, φ(n) = n − 1.</p>
+  `,
+  questions:[
+    { type:'mcq', id:'m1', label:'Q1',
+      text:'Why does 3 have no multiplicative inverse in ℤ₉?',
+      options:[
+        {text:'Because 3 is too small a number', correct:false, why:'Size has nothing to do with it — it\'s about shared factors with 9.'},
+        {text:'Because gcd(3, 9) = 3 ≠ 1', correct:true, why:'Right. 3 and 9 share the factor 3, so they aren\'t relatively prime, so no inverse exists.'},
+        {text:'Because 9 is even', correct:false, why:'9 isn\'t even — and parity isn\'t the relevant property here anyway.'},
+        {text:'Because ℤ₉ has no identity element', correct:false, why:'ℤ₉ does have a multiplicative identity (1) — the issue is specific to the element 3, not the whole set.'}
+      ]
+    },
+    { type:'numeric', id:'m2', label:'Q2', placeholder:'a number 0-10',
+      text:'In ℤ₁₁, what is the multiplicative inverse of 4? (Find y such that 4y ≡ 1 mod 11.)',
+      accept:['3'],
+      solution:'Try values: 4×3 = 12 = 1×11 + 1 ≡ 1 (mod 11). So 4⁻¹ ≡ 3 (mod 11). Cross-check against your notes\' Table 1 (page 22): x=4 row shows x⁻¹ mod 11 = 3. ✓'
+    },
+    { type:'numeric', id:'m3', label:'Q3', placeholder:'a number',
+      text:'Compute φ(13) using the shortcut for primes.',
+      accept:['12'],
+      solution:'13 is prime, so φ(13) = 13 − 1 = 12.'
+    },
+    { type:'tf', id:'m4', label:'Q4',
+      text:'True or false: φ(n) = n − 1 works as a shortcut for any integer n, prime or not.',
+      answer:false,
+      why:'The shortcut only holds for prime n. For composite n (like 9), you must count gcd(k,n)=1 directly — e.g. φ(9)=6, not 9−1=8.'
+    }
+  ]
+},
+
+/* ---------------- 6: Elliptic curves ---------------- */
+{
+  id:'ecc', title:'6 · Elliptic curves',
+  bodyHTML:`
+    <h2><span class="num">6</span>Elliptic Curve Arithmetic</h2>
+    <div class="intuition"><span class="tag">core idea</span>
+    Points on a non-singular curve y² = x³ + ax + b form a group under "point addition": draw a line through two
+    points, find the third intersection point with the curve, then reflect it across the x-axis. That reflected
+    point is the sum. Doubling uses the tangent line instead, when adding a point to itself.</div>
+    <div class="math">y² = x³ + ax + b &nbsp;&nbsp;&nbsp; (non-singular requires 4a³ + 27b² ≠ 0)</div>
+    <p>The group needs an identity: a vertical line through P=(a,b) and its reflection P'=(a,−b) never meets the
+    curve a third time at any finite point — so we define a <strong>point at infinity</strong>, 𝒪, as the identity,
+    and P'(x,−y) is always the inverse of P(x,y).</p>
+    <p>General addition formulas (distinct points P,Q):</p>
+    <div class="math">s = (y<sub>Q</sub>−y<sub>P</sub>)/(x<sub>Q</sub>−x<sub>P</sub>) &nbsp;&nbsp; x<sub>R</sub> = s² − x<sub>P</sub> − x<sub>Q</sub> &nbsp;&nbsp; y<sub>R</sub> = −(s·x<sub>R</sub> + y<sub>P</sub> − s·x<sub>P</sub>)</div>
+    <p>Doubling (P=Q) just swaps the slope formula for the implicit derivative:</p>
+    <div class="math">s = (3x<sub>P</sub>² + a) / (2y<sub>P</sub>) &nbsp;&nbsp; x<sub>R</sub> = s² − 2x<sub>P</sub></div>
+    <div class="intuition"><span class="tag">connecting back</span>
+    Over a finite field ℤ<sub>p</sub>, that division in the slope formula becomes "multiply by the modular
+    multiplicative inverse" — straight out of Section 5. This is exactly why ECC requires p to be <strong>prime</strong>:
+    only then is every nonzero element invertible, so the slope computation never breaks.</div>
+    <p>Worked example from your notes: on E: Y² = X³+3X+8 mod 13, with P=(9,7), Q=(1,8):
+    slope λ = (8−7)/(1−9) = 1/(−8) ≡ 1/5 ≡ 5⁻¹ ≡ 8 (mod 13), giving P+Q = (2,10).</p>
+  `,
+  questions:[
+    { type:'mcq', id:'e1', label:'Q1',
+      text:'In the geometric construction of point addition P ⊕ Q, what is the final step after finding the third intersection point R of the line through P and Q?',
+      options:[
+        {text:'R itself is the answer', correct:false, why:'Not quite — your notes define the sum as the reflection of R, not R itself.'},
+        {text:'Reflect R across the x-axis to get R\', and P ⊕ Q = R\'', correct:true, why:'Right. This reflection step is what makes the operation satisfy the group axioms (in particular, gives every point an inverse).'},
+        {text:'Double R using the tangent line', correct:false, why:'Doubling is a separate operation used only when adding a point to itself, not a step in general addition.'},
+        {text:'Take the average of P and Q\'s coordinates', correct:false, why:'That\'s not how the geometric construction works — it\'s based on line intersection, not averaging.'}
+      ]
+    },
+    { type:'mcq', id:'e2', label:'Q2',
+      text:'Why must p be prime when defining an elliptic curve over a finite field ℤₚ for cryptographic use?',
+      options:[
+        {text:'Prime numbers make the curve\'s shape rounder', correct:false, why:'Primality of p has nothing to do with the geometric shape of the curve.'},
+        {text:'So that every nonzero element of ℤₚ has a multiplicative inverse, which the point-addition slope formula requires', correct:true, why:'Exactly — the slope formula divides by (x_Q − x_P), and over ℤₚ that "division" means multiplying by a modular inverse, which only always exists when p is prime.'},
+        {text:'Because non-prime p would make the curve have more than one identity element', correct:false, why:'The identity element (point at infinity) doesn\'t depend on whether p is prime.'},
+        {text:'It isn\'t actually required — any p works equally well', correct:false, why:'It is required in practice — composite p can cause the slope computation to fail when a needed inverse doesn\'t exist.'}
+      ]
+    },
+    { type:'numeric', id:'e3', label:'Q3', placeholder:'(x, y) e.g. (2, 5)',
+      text:'On y² = x³ − 15x + 18, the identity (point at infinity) is paired with inverses by reflecting across the x-axis. If P = (7, 16), what is its inverse P\'?',
+      accept:['(7, -16)', '(7,-16)', '7,-16'],
+      solution:'The inverse of P(x,y) is always P\'(x,−y) — same x-coordinate, negated y. So the inverse of (7,16) is (7,−16).'
+    },
+    { type:'steps', id:'e4', label:'Q4',
+      text:'On E: y² = x³ + 2x + 2 (mod 7), let\'s find one point. For x = 2: compute x³ + 2x + 2 (mod 7), then find a y with y² ≡ that value (mod 7).',
+      steps:[
+        { prompt:'x³ + 2x + 2 at x=2, mod 7 =', accept:['0'] },
+        { prompt:'A value of y (0-6) with y² ≡ that, mod 7 =', accept:['0'] }
+      ],
+      solution:'x=2: 2³+2(2)+2 = 8+4+2 = 14, and 14 mod 7 = 0.<br>We need y² ≡ 0 (mod 7). Since 7 is prime, the only y in {0,...,6} with y²≡0 is y=0 itself (0²=0).<br>So (2, 0) is a point on this curve — and it\'s a special case: when y=0, the point is its own inverse (since (x,−y)=(x,0)=(x,y) here), meaning 2·(2,0) = 𝒪, the identity. Not every x-value works this cleanly — e.g. x=1 gives x³+2x+2=5 mod 7, and 5 isn\'t a quadratic residue mod 7 (the squares mod 7 are only {0,1,2,4}), so x=1 contributes no points to this curve at all. Try checking x=0,3,4,5 yourself for more practice.'
+    }
+  ]
+},
+
+/* ---------------- 7: Practice set ---------------- */
+{
+  id:'practice', title:'7 · Practice set',
+  bodyHTML:`
+    <h2><span class="num">7</span>Practice Problems</h2>
+    <p>Exam-style problems spanning every section. Try each before opening the worked solution.</p>
+  `,
+  questions:[
+    { type:'numeric', id:'p1', label:'Practice 1 — Substitution cipher', placeholder:'decoded phrase',
+      text:'Caesar cipher, key = 3 (shift back 3 letters to decrypt, wrapping a→z if needed). Decrypt: "eqj dwwdfn dw qrrq"',
+      accept:['bng attack at noon','bngattackatnoon'],
+      solution:'Shift every ciphertext letter back 3 positions (e.g. e→d→c→b):<br>e→b, q→n, j→g &nbsp;→ "bng"<br>d→a, w→t, w→t, d→a, f→c, n→k &nbsp;→ "attack"<br>d→a, w→t &nbsp;→ "at"<br>q→n, r→o, r→o, q→n &nbsp;→ "noon"<br>Full decode: "bng attack at noon". (The mechanical process — shifting each letter back by the key — is what this checks; "bng" isn\'t a real word, which is a useful reminder that not every constructed example lands on a tidy English phrase the way your lecture notes\' "Enemy falling back" example does.)'
+    },
+    { type:'numeric', id:'p2', label:'Practice 2 — GCD', placeholder:'two numbers, e.g. 7 and 1',
+      text:'Compute gcd(35, 14) and gcd(17, 22). Type both answers separated by "and" (e.g. "7 and 1").',
+      accept:['7 and 1','7and1'],
+      solution:'gcd(35,14): 35=5×7, 14=2×7 → common factor 7 → gcd=7.<br>gcd(17,22): 17 is prime; 22=2×11. No shared factors → gcd=1 (relatively prime).'
+    },
+    { type:'numeric', id:'p3', label:'Practice 3 — Non-invertible elements', placeholder:'list, e.g. 2, 4, 6',
+      text:'List all elements of ℤ₁₂ (excluding 0) that do NOT have a multiplicative inverse mod 12.',
+      accept:['2,3,4,6,8,9,10','2, 3, 4, 6, 8, 9, 10'],
+      solution:'12 = 2²×3. An element x lacks an inverse iff gcd(x,12) ≠ 1, i.e. x shares a factor of 2 or 3 with 12.<br>Check x=1..11: gcd(1,12)=1 ✓inv; gcd(2,12)=2 ✗; gcd(3,12)=3 ✗; gcd(4,12)=4 ✗; gcd(5,12)=1 ✓inv; gcd(6,12)=6 ✗; gcd(7,12)=1 ✓inv; gcd(8,12)=4 ✗; gcd(9,12)=3 ✗; gcd(10,12)=2 ✗; gcd(11,12)=1 ✓inv.<br>Non-invertible: 2, 3, 4, 6, 8, 9, 10 — note these are exactly the multiples of 2 or 3 below 12.'
+    },
+    { type:'numeric', id:'p4', label:'Practice 4 — Euler totient', placeholder:'two numbers, e.g. 6 and 6',
+      text:'Compute φ(13) and φ(9). Type both separated by "and".',
+      accept:['12 and 6','12and6'],
+      solution:'φ(13): 13 is prime → φ(13)=13−1=12.<br>φ(9): 9 is NOT prime, so check gcd(k,9)=1 for k=1..9: k=1✓,2✓,3✗(gcd3),4✓,5✓,6✗(gcd3),7✓,8✓,9✗(gcd9). That\'s 6 values (1,2,4,5,7,8) relatively prime to 9 → φ(9)=6.'
+    },
+    { type:'steps', id:'p5', label:'Practice 5 — Point doubling',
+      text:'On E: Y² = X³ − 15X + 18, double the point P = (1, 2) (i.e. compute P ⊕ P). Work through the slope first.',
+      steps:[
+        { prompt:'Slope s = (3x²−15)/(2y) at P=(1,2) =', accept:['-3'] },
+        { prompt:'x_R = s² − 2x_P =', accept:['7'] }
+      ],
+      solution:'Slope: s = (3(1)²−15)/(2×2) = (3−15)/4 = −12/4 = −3.<br>y₀ = y_P − s·x_P = 2 − (−3)(1) = 2+3 = 5.<br>x_R = s² − 2x_P = 9 − 2 = 7.<br>y_R = −(s·x_R + y₀) = −((−3)(7)+5) = −(−21+5) = −(−16) = 16.<br>So P ⊕ P = (7, 16) — this lands exactly on the point used in your notes\' main worked example, a nice consistency check: doubling (1,2) gets you to (7,16), the same point your notes separately add to (1,2) directly.'
+    },
+    { type:'mcq', id:'p6', label:'Practice 6 — Conceptual',
+      text:'Why does elliptic curve cryptography rely on computing kP (a point added to itself k times) rather than something simpler like k·x for an ordinary number x?',
+      options:[
+        {text:'Because point addition is faster to compute than ordinary multiplication', correct:false, why:'Speed isn\'t the reason — it\'s about the structure of the hard problem.'},
+        {text:'Because recovering k from P and kP (the discrete log problem) is computationally infeasible for well-chosen curves, while the forward computation is efficient — a one-way structure ideal for cryptography', correct:true, why:'Exactly right — this asymmetry (easy forward, hard to reverse) is the whole basis of ECC\'s security.'},
+        {text:'Because elliptic curves only support addition, not multiplication', correct:false, why:'The curve\'s group operation is called "addition" by convention, but the broader point is about one-way hardness, not a missing operation.'},
+        {text:'There is no particular reason — any group would work equally well', correct:false, why:'Not all groups give the same hardness guarantees; elliptic curve groups are chosen because the discrete log problem on them is especially hard relative to key size.'}
+      ]
+    }
+  ]
+}
+];
+
+/* =====================================================================
+   RENDER ENGINE
+===================================================================== */
+const host = document.getElementById('modules-host');
+const tocHost = document.getElementById('toc');
+let currentIdx = 0;
+
+MODULES.forEach((m, i) => {
+  const sec = document.createElement('section');
+  sec.className = 'module';
+  sec.id = 'mod-' + m.id;
+  sec.innerHTML = m.bodyHTML;
+
+  if (m.questions && m.questions.length){
+    const qHost = document.createElement('div');
+    qHost.className = 'qhost';
+    m.questions.forEach(q => {
+      if (q.type === 'mcq') renderMCQ(qHost, q);
+      else if (q.type === 'numeric') renderNumeric(qHost, q);
+      else if (q.type === 'tf') renderTF(qHost, q);
+      else if (q.type === 'steps') renderSteps(qHost, q);
+    });
+    sec.appendChild(qHost);
+  }
+
+  host.appendChild(sec);
+
+  const tbtn = document.createElement('button');
+  tbtn.textContent = m.title;
+  tbtn.addEventListener('click', () => goTo(i));
+  tocHost.appendChild(tbtn);
+});
+
+function goTo(idx){
+  currentIdx = Math.max(0, Math.min(MODULES.length - 1, idx));
+  document.querySelectorAll('section.module').forEach((s,i) => {
+    s.classList.toggle('active', i === currentIdx);
+  });
+  [...tocHost.children].forEach((b,i) => b.classList.toggle('active', i === currentIdx));
+  document.getElementById('progress-label').textContent = `Section ${currentIdx+1} of ${MODULES.length}`;
+  document.getElementById('progress-fill').style.width = (100*(currentIdx+1)/MODULES.length) + '%';
+  document.getElementById('prevBtn').disabled = currentIdx === 0;
+  const isLast = currentIdx === MODULES.length - 1;
+  document.getElementById('nextBtn').textContent = isLast ? 'finish ✓' : 'next →';
+  document.getElementById('midlabel').textContent = MODULES[currentIdx].title;
+  window.scrollTo({top:0, behavior:'smooth'});
+  refreshScorePill();
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => goTo(currentIdx - 1));
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentIdx === MODULES.length - 1){
+    showFinalSummary();
+  } else {
+    goTo(currentIdx + 1);
+  }
+});
+
+function showFinalSummary(){
+  const { correct, total } = totalScore();
+  const pct = total ? Math.round(100*correct/total) : 0;
+  let msg;
+  if (pct >= 85) msg = "Strong grasp across the board — this material is solid.";
+  else if (pct >= 60) msg = "Good progress. Revisit the flagged misses before the exam.";
+  else msg = "Worth another pass through the sections where you missed questions.";
+
+  const panel = document.createElement('div');
+  panel.className = 'summary-panel';
+  panel.innerHTML = `
+    <div class="big">${correct} / ${total}</div>
+    <p>${msg}</p>
+    <button class="reset-btn" id="resetAll">reset all answers</button>
+  `;
+  const old = document.getElementById('finalPanel');
+  if (old) old.remove();
+  panel.id = 'finalPanel';
+  document.querySelector('.wrap').appendChild(panel);
+  panel.scrollIntoView({behavior:'smooth'});
+
+  document.getElementById('resetAll').addEventListener('click', () => {
+    location.reload();
+  });
+}
+
+goTo(0);
+</script>
+</body>
+</html>

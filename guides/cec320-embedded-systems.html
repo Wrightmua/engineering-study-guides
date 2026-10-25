@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEC320 — Embedded Systems 1 · Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B2818;
+    --bg-panel: #0F3320;
+    --bg-panel-2: #12391F;
+    --line: #21492F;
+    --copper: #C97A4A;
+    --copper-bright: #E39566;
+    --signal: #EAF2EC;
+    --signal-dim: #9FB8A9;
+    --amber: #E8A33D;
+    --cyan: #4FD1C5;
+    --red: #E56B6B;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(234,242,236,0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color:var(--signal);
+    font-family:var(--sans);
+    line-height:1.6;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ===== Layout ===== */
+  .app{display:flex; min-height:100vh;}
+  .rail{
+    width:230px; flex-shrink:0;
+    background:var(--bg-panel);
+    border-right:1px solid var(--line);
+    position:sticky; top:0; height:100vh;
+    padding:24px 0;
+    overflow-y:auto;
+  }
+  .rail-header{
+    padding:0 20px 18px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:14px;
+  }
+  .rail-header .tag{
+    font-family:var(--mono); font-size:10px; letter-spacing:2px;
+    color:var(--copper); text-transform:uppercase;
+  }
+  .rail-header .course{
+    font-family:var(--mono); font-weight:700; font-size:15px; color:var(--signal); margin-top:6px;
+  }
+  .rail-header .sub{font-size:11px; color:var(--signal-dim); margin-top:4px;}
+
+  .pin-nav a{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 20px;
+    font-size:12.5px; color:var(--signal-dim); text-decoration:none;
+    border-left:2px solid transparent;
+    transition:.15s;
+  }
+  .pin-nav a:hover{color:var(--signal); background:rgba(255,255,255,0.03);}
+  .pin-nav a.active{color:var(--cyan); border-left-color:var(--cyan); background:rgba(79,209,197,0.06);}
+  .pin-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--signal-dim); flex-shrink:0;
+    box-shadow:0 0 0 3px rgba(255,255,255,0.03);
+  }
+  .pin-nav a.active .pin-dot{background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+
+  .progress-wrap{padding:16px 20px 4px; margin-top:8px; border-top:1px solid var(--line);}
+  .progress-label{font-family:var(--mono); font-size:10px; color:var(--signal-dim); letter-spacing:1px; display:flex; justify-content:space-between;}
+  .progress-bar{height:4px; background:var(--bg); border-radius:2px; margin-top:8px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--copper),var(--cyan)); width:0%; transition:width .4s;}
+
+  main{flex:1; min-width:0;}
+  .hero{
+    padding:64px 56px 48px;
+    border-bottom:1px solid var(--line);
+    position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; right:-60px; top:-60px; width:320px; height:320px;
+    background:radial-gradient(circle, rgba(201,122,74,0.12), transparent 70%);
+  }
+  .hero .eyebrow{font-family:var(--mono); color:var(--copper); font-size:12px; letter-spacing:3px; text-transform:uppercase;}
+  .hero h1{font-family:var(--mono); font-size:clamp(28px,4vw,44px); margin:14px 0 10px; line-height:1.15;}
+  .hero p{color:var(--signal-dim); max-width:640px; font-size:15px;}
+  .hero-meta{display:flex; gap:28px; margin-top:28px; flex-wrap:wrap;}
+  .hero-meta div{font-family:var(--mono); font-size:11px; color:var(--signal-dim);}
+  .hero-meta strong{display:block; color:var(--signal); font-size:14px; margin-top:3px;}
+
+  section.block{padding:52px 56px; border-bottom:1px solid var(--line);}
+  section.block:last-child{border-bottom:none;}
+  .block-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px;}
+  .block-num{font-family:var(--mono); color:var(--copper); font-size:13px;}
+  .block-head h2{font-family:var(--mono); font-size:22px; margin:0;}
+  .block-marks{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--signal-dim); border:1px solid var(--line); padding:4px 10px; border-radius:20px;}
+  .block-intro{color:var(--signal-dim); font-size:14px; margin:14px 0 26px; max-width:720px;}
+
+  .card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    padding:20px 22px; margin-bottom:16px;
+  }
+  .card h3{font-family:var(--mono); font-size:14.5px; margin:0 0 10px; color:var(--copper-bright);}
+  .card p{margin:0 0 8px; font-size:14px; color:var(--signal);}
+  .card ul{margin:8px 0 0; padding-left:18px; font-size:13.5px; color:var(--signal-dim);}
+  .card li{margin-bottom:5px;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr;}}
+
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+  .chip{font-family:var(--mono); font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid var(--line); color:var(--signal-dim);}
+  .chip.soft{color:var(--cyan); border-color:rgba(79,209,197,0.4);}
+  .chip.hard{color:var(--red); border-color:rgba(229,107,107,0.4);}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:8px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line);}
+  th{font-family:var(--mono); font-size:11px; color:var(--copper-bright); text-transform:uppercase; letter-spacing:1px;}
+  td{color:var(--signal-dim);}
+  tr:last-child td{border-bottom:none;}
+
+  pre{
+    background:#081C11; border:1px solid var(--line); border-radius:8px;
+    padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:12.5px;
+    line-height:1.7; margin:10px 0;
+  }
+  code{font-family:var(--mono);}
+  .kw{color:#7EC4E8;} .fn{color:var(--amber);} .cm{color:var(--signal-dim); font-style:italic;} .str{color:var(--cyan);} .num{color:var(--copper-bright);}
+
+  .line-explain{
+    display:grid; grid-template-columns:auto 1fr; gap:4px 16px;
+    margin-top:12px; font-size:13px;
+  }
+  .line-explain code{color:var(--copper-bright); white-space:nowrap;}
+  .line-explain span{color:var(--signal-dim);}
+
+  /* ==== Traffic light simulator ==== */
+  .sim{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:28px; display:flex; gap:32px; align-items:center; flex-wrap:wrap;
+  }
+  .sim-info{flex:1; min-width:220px;}
+  .sim-state{font-family:var(--mono); font-size:12px; color:var(--copper); letter-spacing:1px;}
+  .sim-desc{font-size:13.5px; color:var(--signal-dim); margin-top:8px; min-height:40px;}
+  .sim-controls{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono); font-size:12px; background:transparent; color:var(--signal);
+    border:1px solid var(--line); padding:9px 14px; border-radius:6px; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .btn.primary{background:var(--copper); color:#0B2818; border-color:var(--copper); font-weight:700;}
+  .btn.primary:hover{background:var(--copper-bright); color:#0B2818;}
+  .btn.danger{border-color:rgba(229,107,107,0.5); color:var(--red);}
+  .btn.danger:hover{border-color:var(--red); background:rgba(229,107,107,0.08);}
+
+  .intersection{display:grid; grid-template-columns:repeat(2,64px); gap:24px 48px; place-items:center;}
+  .light-pole{display:flex; flex-direction:column; align-items:center; gap:5px;}
+  .pole-label{font-family:var(--mono); font-size:10px; color:var(--signal-dim); margin-bottom:4px;}
+  .lamp-housing{background:#052012; border:1px solid var(--line); border-radius:6px; padding:6px; display:flex; flex-direction:column; gap:5px;}
+  .lamp{width:18px; height:18px; border-radius:50%; background:#1a1a1a; transition:.25s;}
+  .lamp.red.on{background:var(--red); box-shadow:0 0 14px var(--red);}
+  .lamp.yellow.on{background:var(--amber); box-shadow:0 0 14px var(--amber);}
+  .lamp.green.on{background:#4CE07A; box-shadow:0 0 14px #4CE07A;}
+
+  /* ==== Quiz ==== */
+  .quiz-card{background:var(--bg-panel); border:1px solid var(--line); border-radius:10px; padding:20px 22px; margin-bottom:14px;}
+  .quiz-q{font-size:14px; margin-bottom:12px; color:var(--signal);}
+  .quiz-opts{display:flex; flex-direction:column; gap:8px;}
+  .quiz-opt{
+    text-align:left; font-family:var(--sans); font-size:13.5px;
+    background:var(--bg); border:1px solid var(--line); color:var(--signal-dim);
+    padding:11px 14px; border-radius:7px; cursor:pointer; transition:.15s;
+  }
+  .quiz-opt:hover{border-color:var(--cyan);}
+  .quiz-opt.correct{border-color:#4CE07A; background:rgba(76,224,122,0.08); color:#4CE07A;}
+  .quiz-opt.wrong{border-color:var(--red); background:rgba(229,107,107,0.08); color:var(--red);}
+  .quiz-fb{font-size:12.5px; color:var(--signal-dim); margin-top:10px; display:none; font-family:var(--mono);}
+  .quiz-fb.show{display:block;}
+
+  .flip-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  @media(max-width:700px){.flip-grid{grid-template-columns:1fr;}}
+  .flip-card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; cursor:pointer; min-height:92px;
+    display:flex; flex-direction:column; justify-content:center;
+    transition:.2s;
+  }
+  .flip-card:hover{border-color:var(--copper);}
+  .flip-card .front{font-family:var(--mono); font-size:13px; color:var(--copper-bright);}
+  .flip-card .back{font-size:12.5px; color:var(--signal-dim); margin-top:8px; display:none;}
+  .flip-card.open .back{display:block;}
+  .flip-card .hint{font-size:10px; color:var(--signal-dim); font-family:var(--mono); margin-top:6px; opacity:.6;}
+
+  footer{padding:32px 56px 60px; color:var(--signal-dim); font-size:12px; font-family:var(--mono);}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="rail">
+    <div class="rail-header">
+      <div class="tag">CEC320 · Resit Prep</div>
+      <div class="course">Embedded Systems 1</div>
+      <div class="sub">Univ. of Buea · Comp. Eng.</div>
+    </div>
+    <div class="pin-nav" id="pinNav">
+      <a href="#overview" data-target="overview"><span class="pin-dot"></span>Overview</a>
+      <a href="#types" data-target="types"><span class="pin-dot"></span>1.1 System Types</a>
+      <a href="#rtes" data-target="rtes"><span class="pin-dot"></span>1.2 Real-Time Systems</a>
+      <a href="#rtos" data-target="rtos"><span class="pin-dot"></span>1.3 RTOS vs GPOS</a>
+      <a href="#ai" data-target="ai"><span class="pin-dot"></span>1.4 Embedded AI</a>
+      <a href="#roundrobin" data-target="roundrobin"><span class="pin-dot"></span>1.6 Round Robin</a>
+      <a href="#simulator" data-target="simulator"><span class="pin-dot"></span>2. Traffic Light Sim</a>
+      <a href="#circuit" data-target="circuit"><span class="pin-dot"></span>2.3 Circuit Diagram</a>
+      <a href="#components" data-target="components"><span class="pin-dot"></span>2.2 Components</a>
+      <a href="#code" data-target="code"><span class="pin-dot"></span>3.1 Code Reading</a>
+      <a href="#wifi" data-target="wifi"><span class="pin-dot"></span>3.2 WiFi AP Setup</a>
+      <a href="#quiz" data-target="quiz"><span class="pin-dot"></span>Self-Check Quiz</a>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>QUIZ SCORE</span><span id="scoreLabel">0/8</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero" id="overview">
+      <div class="eyebrow">Second Semester Resit · June 2025/2026</div>
+      <h1>Embedded Systems 1<br>Interactive Study Guide</h1>
+      <p>Built from your actual CEC320 resit paper — covers embedded system classification, RTOS theory, embedded AI, and a full walkthrough of the traffic-light ESP32 project, close to what you already built. Click through the simulator, flip the definition cards, and test yourself at the end.</p>
+      <div class="hero-meta">
+        <div>COURSE CODE<strong>CEC320</strong></div>
+        <div>CREDIT VALUE<strong>4</strong></div>
+        <div>TIME ALLOWED<strong>2 hrs</strong></div>
+        <div>TOTAL MARKS<strong>70</strong></div>
+      </div>
+    </section>
+
+    <!-- 1.1 TYPES -->
+    <section class="block" id="types">
+      <div class="block-head">
+        <span class="block-num">Q1.1</span><h2>Five Types of Embedded Systems</h2>
+        <span class="block-marks">5 × 1 mark</span>
+      </div>
+      <p class="block-intro">Classification depends on what angle you look from — function, timing, connectivity, or scale. Examiners want the name <em>and</em> one line on why it fits that name.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>① Standalone</h3>
+          <p>Works independently — takes input, processes it, produces output, with no host computer needed.</p>
+          <ul><li>Example: a digital microwave timer, a calculator</li></ul>
+        </div>
+        <div class="card">
+          <h3>② Real-Time</h3>
+          <p>Output correctness depends on meeting a timing deadline, not just producing the right value.</p>
+          <ul><li>Example: anti-lock braking system</li></ul>
+        </div>
+        <div class="card">
+          <h3>③ Networked</h3>
+          <p>Connects to a network (wired or wireless) to share data or accept commands remotely.</p>
+          <ul><li>Example: your ESP32 traffic dashboard over Wi-Fi</li></ul>
+        </div>
+        <div class="card">
+          <h3>④ Mobile</h3>
+          <p>Small, portable, battery-powered — optimized for size and power draw over raw performance.</p>
+          <ul><li>Example: smartwatch, fitness tracker</li></ul>
+        </div>
+        <div class="card">
+          <h3>⑤ Small-scale / Large-scale</h3>
+          <p>Classified by hardware complexity — 8/16-bit MCU with few peripherals vs. 32/64-bit multi-core with many.</p>
+          <ul><li>Example: a doorbell chip (small) vs. a car ECU (large)</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.2 RTES -->
+    <section class="block" id="rtes">
+      <div class="block-head">
+        <span class="block-num">Q1.2</span><h2>Real-Time Embedded Systems</h2>
+        <span class="block-marks">1+1+1 marks</span>
+      </div>
+      <p class="block-intro">A Real-Time Embedded System (RTES) must produce correct output <strong>within a strict, predictable time window</strong> — being late is treated the same as being wrong. The exam wants you to split this into soft vs. hard, with two examples each.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>Soft Real-Time <span class="chip-row"><span class="chip soft">tolerable delay</span></span></h3>
+          <p>Missing the deadline degrades quality of service, but the system still works and no serious harm occurs.</p>
+          <ul>
+            <li>Video/audio streaming — a late frame just looks like a glitch</li>
+            <li>Your ESP32 web dashboard updating traffic light status — a slightly delayed refresh is annoying, not dangerous</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Hard Real-Time <span class="chip-row"><span class="chip hard">zero tolerance</span></span></h3>
+          <p>Missing the deadline is a total system failure — it can cause damage, injury, or loss of life.</p>
+          <ul>
+            <li>Airbag deployment controller</li>
+            <li>Pacemaker / medical infusion pump</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.3 RTOS -->
+    <section class="block" id="rtos">
+      <div class="block-head">
+        <span class="block-num">Q1.3</span><h2>RTOS vs. GPOS</h2>
+        <span class="block-marks">2.5 marks</span>
+      </div>
+      <p class="block-intro"><strong>RTOS (Real-Time Operating System):</strong> an OS built to guarantee that a task completes within a bounded, predictable time using deterministic, priority-based scheduling.</p>
+      <table>
+        <tr><th>Dimension</th><th>RTOS</th><th>GPOS (e.g. Windows/Linux desktop)</th></tr>
+        <tr><td>Goal</td><td>Predictability / determinism</td><td>Average throughput & fairness</td></tr>
+        <tr><td>Scheduling</td><td>Priority-based, preemptive</td><td>Time-sharing, best-effort</td></tr>
+        <tr><td>Response time</td><td>Bounded & guaranteed</td><td>Variable, not guaranteed</td></tr>
+        <tr><td>Footprint</td><td>Minimal — runs on constrained MCUs</td><td>Large — needs significant RAM/storage</td></tr>
+        <tr><td>Failure mode</td><td>A missed deadline = system failure (hard RT)</td><td>A slow response is just inconvenient</td></tr>
+      </table>
+    </section>
+
+    <!-- 1.4 AI -->
+    <section class="block" id="ai">
+      <div class="block-head">
+        <span class="block-num">Q1.4</span><h2>Embedded AI</h2>
+        <span class="block-marks">3 marks</span>
+      </div>
+      <p class="block-intro"><strong>Embedded AI</strong> is the integration of AI/ML models directly into resource-constrained devices, so inference happens locally on-device rather than being sent to the cloud.</p>
+      <div class="grid2">
+        <div class="card"><h3>TPU</h3><p>Tensor Processing Unit — accelerates the matrix multiplications behind neural network inference.</p></div>
+        <div class="card"><h3>NPU</h3><p>Neural Processing Unit — a dedicated core for AI workloads, found in newer chips like the ESP32-S3.</p></div>
+        <div class="card"><h3>GPU</h3><p>Graphics Processing Unit — massively parallel, reused for AI math on more powerful embedded boards.</p></div>
+      </div>
+    </section>
+
+    <!-- 1.6 Round robin -->
+    <section class="block" id="roundrobin">
+      <div class="block-head">
+        <span class="block-num">Q1.6</span><h2>Round Robin Scheduling</h2>
+        <span class="block-marks">4 marks</span>
+      </div>
+      <p class="block-intro">Click through the ticks below — this is exactly how an examiner expects you to narrate it.</p>
+      <div class="card">
+        <ul>
+          <li>Every task waits in a circular queue and is given a fixed <strong>time quantum</strong> (slice)</li>
+          <li>The CPU runs the task at the front of the queue until the quantum expires — or the task finishes early</li>
+          <li>If the quantum expires and the task isn't done, it's <strong>preempted</strong> and sent to the back of the queue</li>
+          <li>The next task in line then gets its turn — no task can monopolize the CPU</li>
+          <li>This repeats continuously, giving every task fair, predictable access to processing time</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SIMULATOR -->
+    <section class="block" id="simulator">
+      <div class="block-head">
+        <span class="block-num">Q2</span><h2>Traffic Light System — Live Simulator</h2>
+        <span class="block-marks">30 marks</span>
+      </div>
+      <p class="block-intro">This mirrors the state machine described in your exam: T1/T2 green + T3/T4 red for 15s, then a manual-override mode where all lights turn on and four buttons select which lane opens. Step through the states below.</p>
+      <div class="sim">
+        <div class="intersection" id="intersection">
+          <div class="light-pole">
+            <div class="pole-label">T1</div>
+            <div class="lamp-housing"><div class="lamp red" id="t1-red"></div><div class="lamp yellow" id="t1-yellow"></div><div class="lamp green" id="t1-green"></div></div>
+          </div>
+          <div class="light-pole">
+            <div class="pole-label">T2</div>
+            <div class="lamp-housing"><div class="lamp red" id="t2-red"></div><div class="lamp yellow" id="t2-yellow"></div><div class="lamp green" id="t2-green"></div></div>
+          </div>
+          <div class="light-pole">
+            <div class="pole-label">T3</div>
+            <div class="lamp-housing"><div class="lamp red" id="t3-red"></div><div class="lamp yellow" id="t3-yellow"></div><div class="lamp green" id="t3-green"></div></div>
+          </div>
+          <div class="light-pole">
+            <div class="pole-label">T4</div>
+            <div class="lamp-housing"><div class="lamp red" id="t4-red"></div><div class="lamp yellow" id="t4-yellow"></div><div class="lamp green" id="t4-green"></div></div>
+          </div>
+        </div>
+        <div class="sim-info">
+          <div class="sim-state" id="simState">STATE: NORMAL SEQUENCE</div>
+          <div class="sim-desc" id="simDesc">T1 & T2 = green, T3 & T4 = red. Runs for 15 seconds unless a button overrides it.</div>
+          <div class="sim-controls">
+            <button class="btn primary" id="btnNormal">Normal Sequence</button>
+            <button class="btn danger" id="btnManual">Trigger Manual Override</button>
+            <button class="btn" id="btnLane1">Select Lane T1</button>
+            <button class="btn" id="btnLane3">Select Lane T3</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Block diagram — steps to realize the project (5 marks)</h3>
+        <p>Requirements → System Design (state diagram of the sequence above) → Component Selection → Circuit/Wiring Design → Firmware Development (state machine + button interrupt) → Testing & Calibration → Integration → Deployment.</p>
+      </div>
+    </section>
+
+    <!-- CIRCUIT DIAGRAM -->
+    <section class="block" id="circuit">
+      <div class="block-head">
+        <span class="block-num">Q2.3</span><h2>Labeled Circuit Diagram</h2>
+        <span class="block-marks">15 marks</span>
+      </div>
+      <p class="block-intro">Full wiring diagram for the 4-way intersection: each traffic light module (R/Y/G LEDs + 330Ω resistors) on its own GPIO trio, four push buttons on pull-down inputs for manual override, and shared power/ground rails. Reproduce this structure — labeled pins, resistor values, and the pull-down convention — for full marks.</p>
+      <div class="card" style="padding:12px;">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjExNTAiIHZpZXdCb3g9IjAgMCAxNjAwIDExNTAiIGZvbnQtZmFtaWx5PSJTcGFjZSBNb25vLCBDb25zb2xhcywgbW9ub3NwYWNlIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmxibCB7IGZvbnQtc2l6ZTogMTNweDsgZmlsbDogIzBGMzMyMDsgfQogICAgICAubGJsLXNtIHsgZm9udC1zaXplOiAxMXB4OyBmaWxsOiAjNGE1ZjUyOyB9CiAgICAgIC5sYmwtcGluIHsgZm9udC1zaXplOiAxMXB4OyBmaWxsOiAjMEIyODE4OyBmb250LXdlaWdodDogYm9sZDsgfQogICAgICAubGJsLXRpdGxlIHsgZm9udC1zaXplOiAyMnB4OyBmaWxsOiAjMEIyODE4OyBmb250LXdlaWdodDogYm9sZDsgfQogICAgICAubGJsLXN1YiB7IGZvbnQtc2l6ZTogMTNweDsgZmlsbDogIzZiN2Q3MjsgfQogICAgICAud2lyZSB7IHN0cm9rZTogIzBGMzMyMDsgc3Ryb2tlLXdpZHRoOiAxLjg7IGZpbGw6IG5vbmU7IH0KICAgICAgLndpcmUtZ25kIHsgc3Ryb2tlOiAjNDQ0OyBzdHJva2Utd2lkdGg6IDEuODsgZmlsbDogbm9uZTsgfQogICAgICAud2lyZS1wd3IgeyBzdHJva2U6ICNDOTYwMUE7IHN0cm9rZS13aWR0aDogMjsgZmlsbDogbm9uZTsgfQogICAgICAuYm94IHsgZmlsbDogI0Y0RjdGNTsgc3Ryb2tlOiAjMEYzMzIwOyBzdHJva2Utd2lkdGg6IDEuNjsgfQogICAgICAuZXNwLWJveCB7IGZpbGw6ICMxMjNBMjQ7IHN0cm9rZTogIzBCMjgxODsgc3Ryb2tlLXdpZHRoOiAyOyB9CiAgICAgIC5waW4tZG90IHsgZmlsbDogIzBGMzMyMDsgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjExNTAiIGZpbGw9IiNGQ0ZERkMiLz4KICA8dGV4dCB4PSI2MCIgeT0iNDYiIGNsYXNzPSJsYmwtdGl0bGUiPlNtYXJ0IFRyYWZmaWMgTGlnaHQgU3lzdGVtIOKAlCBFU1AzMiBDaXJjdWl0IERpYWdyYW08L3RleHQ+CiAgPHRleHQgeD0iNjAiIHk9IjY4IiBjbGFzcz0ibGJsLXN1YiI+Q0VDMzIwIMK3IFEyLjMg4oCUIDQtd2F5IGludGVyc2VjdGlvbiwgbWFudWFsIG92ZXJyaWRlIHZpYSBwdXNoIGJ1dHRvbnMsIExPVy10cmlnZ2VyZWQgcmVsYXktc3R5bGUgR1BJTyBsb2dpYzwvdGV4dD4KICA8bGluZSB4MT0iNjAiIHkxPSI4MiIgeDI9IjE1NDAiIHkyPSI4MiIgc3Ryb2tlPSIjQzk2MDFBIiBzdHJva2Utd2lkdGg9IjIiLz4KCiAgPCEtLSA9PT09PT09PT09PT09PT09PT09PT0gRVNQMzIgQk9BUkQgKGNlbnRlcikgPT09PT09PT09PT09PT09PT09PT09IC0tPgogIDxnIGlkPSJlc3AzMiI+CiAgICA8cmVjdCB4PSI2NDAiIHk9IjQzMCIgY2xhc3M9ImVzcC1ib3giIHdpZHRoPSIzMjAiIGhlaWdodD0iMzAwIiByeD0iMTAiLz4KICAgIDx0ZXh0IHg9IjgwMCIgeT0iNDcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iYm9sZCI+RVNQMzIgRGV2S2l0PC90ZXh0PgogICAgPHRleHQgeD0iODAwIiB5PSI0OTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5RkI4QTkiIGZvbnQtc2l6ZT0iMTEiPjM4LXBpbjwvdGV4dD4KICAgIDwhLS0gVVNCIGNvbm5lY3RvciAtLT4KICAgIDxyZWN0IHg9Ijc3NSIgeT0iNDEwIiB3aWR0aD0iNTAiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjODg4Ii8+CiAgICA8dGV4dCB4PSI4MDAiIHk9IjQwNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxibC1zbSI+VVNCIDVWPC90ZXh0PgoKICAgIDwhLS0gTEVGVCBTSURFIFBJTlMgKG91dHB1dHMgdG8gbGlnaHRzIFQxLFQyKSAtLT4KICAgIDwhLS0gVDE6IEdQSU8gNSwxOCwxOSAtLT4KICAgIDxjaXJjbGUgY3g9IjY0MCIgY3k9IjQ2MCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI2MjgiIHk9IjQ2NCIgdGV4dC1hbmNob3I9ImVuZCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzU8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI2NDAiIGN5PSI0ODAiIHI9IjQiIGNsYXNzPSJwaW4tZG90Ii8+PHRleHQgeD0iNjI4IiB5PSI0ODQiIHRleHQtYW5jaG9yPSJlbmQiIGZpbGw9IiNFQUYyRUMiIGZvbnQtc2l6ZT0iMTEiPkcxODwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjY0MCIgY3k9IjUwMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI2MjgiIHk9IjUwNCIgdGV4dC1hbmNob3I9ImVuZCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzE5PC90ZXh0PgogICAgPCEtLSBUMjogR1BJTyAyMSwyMiwyMyAtLT4KICAgIDxjaXJjbGUgY3g9IjY0MCIgY3k9IjUzMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI2MjgiIHk9IjUzNCIgdGV4dC1hbmNob3I9ImVuZCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzIxPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iNjQwIiBjeT0iNTUwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9IjYyOCIgeT0iNTU0IiB0ZXh0LWFuY2hvcj0iZW5kIiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HMjI8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI2NDAiIGN5PSI1NzAiIHI9IjQiIGNsYXNzPSJwaW4tZG90Ii8+PHRleHQgeD0iNjI4IiB5PSI1NzQiIHRleHQtYW5jaG9yPSJlbmQiIGZpbGw9IiNFQUYyRUMiIGZvbnQtc2l6ZT0iMTEiPkcyMzwvdGV4dD4KICAgIDwhLS0gQnV0dG9uIGlucHV0cyBsZWZ0OiBUMSxUMiAtLT4KICAgIDxjaXJjbGUgY3g9IjY0MCIgY3k9IjYxMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI2MjgiIHk9IjYxNCIgdGV4dC1hbmNob3I9ImVuZCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzMyPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iNjQwIiBjeT0iNjMwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9IjYyOCIgeT0iNjM0IiB0ZXh0LWFuY2hvcj0iZW5kIiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HMzM8L3RleHQ+CgogICAgPCEtLSBSSUdIVCBTSURFIFBJTlMgKG91dHB1dHMgdG8gbGlnaHRzIFQzLFQ0KSAtLT4KICAgIDxjaXJjbGUgY3g9Ijk2MCIgY3k9IjQ2MCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI5NzIiIHk9IjQ2NCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzI1PC90ZXh0PgogICAgPGNpcmNsZSBjeD0iOTYwIiBjeT0iNDgwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9Ijk3MiIgeT0iNDg0IiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HMjY8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI5NjAiIGN5PSI1MDAiIHI9IjQiIGNsYXNzPSJwaW4tZG90Ii8+PHRleHQgeD0iOTcyIiB5PSI1MDQiIGZpbGw9IiNFQUYyRUMiIGZvbnQtc2l6ZT0iMTEiPkcyNzwvdGV4dD4KICAgIDxjaXJjbGUgY3g9Ijk2MCIgY3k9IjUzMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI5NzIiIHk9IjUzNCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzE0PC90ZXh0PgogICAgPGNpcmNsZSBjeD0iOTYwIiBjeT0iNTUwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9Ijk3MiIgeT0iNTU0IiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HMTI8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI5NjAiIGN5PSI1NzAiIHI9IjQiIGNsYXNzPSJwaW4tZG90Ii8+PHRleHQgeD0iOTcyIiB5PSI1NzQiIGZpbGw9IiNFQUYyRUMiIGZvbnQtc2l6ZT0iMTEiPkcxMzwvdGV4dD4KICAgIDxjaXJjbGUgY3g9Ijk2MCIgY3k9IjYxMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI5NzIiIHk9IjYxNCIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+RzM0PC90ZXh0PgogICAgPGNpcmNsZSBjeD0iOTYwIiBjeT0iNjMwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9Ijk3MiIgeT0iNjM0IiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HMzU8L3RleHQ+CgogICAgPCEtLSBQb3dlciBwaW5zIGJvdHRvbSAtLT4KICAgIDxjaXJjbGUgY3g9Ijc0MCIgY3k9IjczMCIgcj0iNCIgY2xhc3M9InBpbi1kb3QiLz48dGV4dCB4PSI3NDAiIHk9Ijc1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0VBRjJFQyIgZm9udC1zaXplPSIxMSI+M1YzPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iODAwIiBjeT0iNzMwIiByPSI0IiBjbGFzcz0icGluLWRvdCIvPjx0ZXh0IHg9IjgwMCIgeT0iNzUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRUFGMkVDIiBmb250LXNpemU9IjExIj5HTkQ8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI4NjAiIGN5PSI3MzAiIHI9IjQiIGNsYXNzPSJwaW4tZG90Ii8+PHRleHQgeD0iODYwIiB5PSI3NTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNFQUYyRUMiIGZvbnQtc2l6ZT0iMTEiPlZJTiA1VjwvdGV4dD4KICA8L2c+CgogIDwhLS0gPT09PT09PT09PT09PT09PT09PT09IFRSQUZGSUMgTElHSFQgTU9EVUxFIE1BQ1JPICh1c2VkIDR4KSA9PT09PT09PT09PT09PT09PT09PT0gLS0+CiAgPCEtLSBUMSB0b3AtbGVmdCAtLT4KICA8ZyBpZD0iVDEiPgogICAgPHJlY3QgeD0iMTIwIiB5PSIxNTAiIGNsYXNzPSJib3giIHdpZHRoPSIxMzAiIGhlaWdodD0iMTgwIiByeD0iNiIvPgogICAgPHRleHQgeD0iMTg1IiB5PSIxNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwiIGZvbnQtd2VpZ2h0PSJib2xkIj5UMSDigJQgTGFuZSBOb3J0aDwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjE4NSIgY3k9IjE4NSIgcj0iMTYiIGZpbGw9IiNFNTZCNkIiIHN0cm9rZT0iIzBGMzMyMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICAgIDx0ZXh0IHg9IjIzMCIgeT0iMTkwIiBjbGFzcz0ibGJsLXNtIj5SRUQg4oCUIEdQSU8gNTwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjE4NSIgY3k9IjIzNSIgcj0iMTYiIGZpbGw9IiNFOEEzM0QiIHN0cm9rZT0iIzBGMzMyMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICAgIDx0ZXh0IHg9IjIzMCIgeT0iMjQwIiBjbGFzcz0ibGJsLXNtIj5ZRUxMT1cg4oCUIEdQSU8gMTg8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxODUiIGN5PSIyODUiIHI9IjE2IiBmaWxsPSIjNENFMDdBIiBzdHJva2U9IiMwRjMzMjAiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgICA8dGV4dCB4PSIyMzAiIHk9IjI5MCIgY2xhc3M9ImxibC1zbSI+R1JFRU4g4oCUIEdQSU8gMTk8L3RleHQ+CiAgICA8IS0tIHJlc2lzdG9yIHN5bWJvbHMgLS0+CiAgICA8cmVjdCB4PSIxNzciIHk9IjIwNSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBGMzMyMCIvPgogICAgPHJlY3QgeD0iMTc3IiB5PSIyNTUiIHdpZHRoPSIxNiIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwRjMzMjAiLz4KICAgIDxyZWN0IHg9IjE3NyIgeT0iMzA1IiB3aWR0aD0iMTYiIGhlaWdodD0iOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEYzMzIwIi8+CiAgICA8dGV4dCB4PSIyMDUiIHk9IjMxMyIgY2xhc3M9ImxibC1zbSI+MzMwzqkgw5czIOKGkiBHTkQ8L3RleHQ+CiAgPC9nPgoKICA8IS0tIFQyIGJvdHRvbS1sZWZ0IC0tPgogIDxnIGlkPSJUMiI+CiAgICA8cmVjdCB4PSIxMjAiIHk9IjYwMCIgY2xhc3M9ImJveCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIxODAiIHJ4PSI2Ii8+CiAgICA8dGV4dCB4PSIxODUiIHk9IjU5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxibCIgZm9udC13ZWlnaHQ9ImJvbGQiPlQyIOKAlCBMYW5lIEVhc3Q8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxODUiIGN5PSI2MzUiIHI9IjE2IiBmaWxsPSIjRTU2QjZCIiBzdHJva2U9IiMwRjMzMjAiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgICA8dGV4dCB4PSIyMzAiIHk9IjY0MCIgY2xhc3M9ImxibC1zbSI+UkVEIOKAlCBHUElPIDIxPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iMTg1IiBjeT0iNjg1IiByPSIxNiIgZmlsbD0iI0U4QTMzRCIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMjMwIiB5PSI2OTAiIGNsYXNzPSJsYmwtc20iPllFTExPVyDigJQgR1BJTyAyMjwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjE4NSIgY3k9IjczNSIgcj0iMTYiIGZpbGw9IiM0Q0UwN0EiIHN0cm9rZT0iIzBGMzMyMCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICAgIDx0ZXh0IHg9IjIzMCIgeT0iNzQwIiBjbGFzcz0ibGJsLXNtIj5HUkVFTiDigJQgR1BJTyAyMzwvdGV4dD4KICAgIDxyZWN0IHg9IjE3NyIgeT0iNjU1IiB3aWR0aD0iMTYiIGhlaWdodD0iOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEYzMzIwIi8+CiAgICA8cmVjdCB4PSIxNzciIHk9IjcwNSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBGMzMyMCIvPgogICAgPHJlY3QgeD0iMTc3IiB5PSI3NTUiIHdpZHRoPSIxNiIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwRjMzMjAiLz4KICAgIDx0ZXh0IHg9IjIwNSIgeT0iNzYzIiBjbGFzcz0ibGJsLXNtIj4zMzDOqSDDlzMg4oaSIEdORDwvdGV4dD4KICA8L2c+CgogIDwhLS0gVDMgdG9wLXJpZ2h0IC0tPgogIDxnIGlkPSJUMyI+CiAgICA8cmVjdCB4PSIxMzUwIiB5PSIxNTAiIGNsYXNzPSJib3giIHdpZHRoPSIxMzAiIGhlaWdodD0iMTgwIiByeD0iNiIvPgogICAgPHRleHQgeD0iMTQxNSIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibGJsIiBmb250LXdlaWdodD0iYm9sZCI+VDMg4oCUIExhbmUgU291dGg8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iMTg1IiByPSIxNiIgZmlsbD0iI0U1NkI2QiIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iMTkwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5SRUQg4oCUIEdQSU8gMjU8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iMjM1IiByPSIxNiIgZmlsbD0iI0U4QTMzRCIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iMjQwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5ZRUxMT1cg4oCUIEdQSU8gMjY8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iMjg1IiByPSIxNiIgZmlsbD0iIzRDRTA3QSIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iMjkwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5HUkVFTiDigJQgR1BJTyAyNzwvdGV4dD4KICAgIDxyZWN0IHg9IjE0MDciIHk9IjIwNSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBGMzMyMCIvPgogICAgPHJlY3QgeD0iMTQwNyIgeT0iMjU1IiB3aWR0aD0iMTYiIGhlaWdodD0iOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEYzMzIwIi8+CiAgICA8cmVjdCB4PSIxNDA3IiB5PSIzMDUiIHdpZHRoPSIxNiIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwRjMzMjAiLz4KICAgIDx0ZXh0IHg9IjEzOTUiIHk9IjMxMyIgdGV4dC1hbmNob3I9ImVuZCIgY2xhc3M9ImxibC1zbSI+MzMwzqkgw5czIOKGkiBHTkQ8L3RleHQ+CiAgPC9nPgoKICA8IS0tIFQ0IGJvdHRvbS1yaWdodCAtLT4KICA8ZyBpZD0iVDQiPgogICAgPHJlY3QgeD0iMTM1MCIgeT0iNjAwIiBjbGFzcz0iYm94IiB3aWR0aD0iMTMwIiBoZWlnaHQ9IjE4MCIgcng9IjYiLz4KICAgIDx0ZXh0IHg9IjE0MTUiIHk9IjU5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxibCIgZm9udC13ZWlnaHQ9ImJvbGQiPlQ0IOKAlCBMYW5lIFdlc3Q8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iNjM1IiByPSIxNiIgZmlsbD0iI0U1NkI2QiIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iNjQwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5SRUQg4oCUIEdQSU8gMTQ8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iNjg1IiByPSIxNiIgZmlsbD0iI0U4QTMzRCIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iNjkwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5ZRUxMT1cg4oCUIEdQSU8gMTI8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIxNDE1IiBjeT0iNzM1IiByPSIxNiIgZmlsbD0iIzRDRTA3QSIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTI0MCIgeT0iNzQwIiB0ZXh0LWFuY2hvcj0iZW5kIiBjbGFzcz0ibGJsLXNtIj5HUkVFTiDigJQgR1BJTyAxMzwvdGV4dD4KICAgIDxyZWN0IHg9IjE0MDciIHk9IjY1NSIgd2lkdGg9IjE2IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzBGMzMyMCIvPgogICAgPHJlY3QgeD0iMTQwNyIgeT0iNzA1IiB3aWR0aD0iMTYiIGhlaWdodD0iOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEYzMzIwIi8+CiAgICA8cmVjdCB4PSIxNDA3IiB5PSI3NTUiIHdpZHRoPSIxNiIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwRjMzMjAiLz4KICAgIDx0ZXh0IHg9IjEzOTUiIHk9Ijc2MyIgdGV4dC1hbmNob3I9ImVuZCIgY2xhc3M9ImxibC1zbSI+MzMwzqkgw5czIOKGkiBHTkQ8L3RleHQ+CiAgPC9nPgoKICA8IS0tID09PT09PT09PT09PT09PT09PT09PSBXSVJFUzogVDEgdG8gRVNQMzIgPT09PT09PT09PT09PT09PT09PT09IC0tPgogIDxwYXRoIGNsYXNzPSJ3aXJlIiBkPSJNIDI1MCAxODUgTCA1MDAgMTg1IEwgNTAwIDQ2MCBMIDY0MCA0NjAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSAyNTAgMjM1IEwgNDgwIDIzNSBMIDQ4MCA0ODAgTCA2NDAgNDgwIi8+CiAgPHBhdGggY2xhc3M9IndpcmUiIGQ9Ik0gMjUwIDI4NSBMIDQ2MCAyODUgTCA0NjAgNTAwIEwgNjQwIDUwMCIvPgoKICA8IS0tIFQyIHRvIEVTUDMyIC0tPgogIDxwYXRoIGNsYXNzPSJ3aXJlIiBkPSJNIDI1MCA2MzUgTCA1MDAgNjM1IEwgNTAwIDUzMCBMIDY0MCA1MzAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSAyNTAgNjg1IEwgNDgwIDY4NSBMIDQ4MCA1NTAgTCA2NDAgNTUwIi8+CiAgPHBhdGggY2xhc3M9IndpcmUiIGQ9Ik0gMjUwIDczNSBMIDQ2MCA3MzUgTCA0NjAgNTcwIEwgNjQwIDU3MCIvPgoKICA8IS0tIFQzIHRvIEVTUDMyIC0tPgogIDxwYXRoIGNsYXNzPSJ3aXJlIiBkPSJNIDEzNTAgMTg1IEwgMTEwMCAxODUgTCAxMTAwIDQ2MCBMIDk2MCA0NjAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSAxMzUwIDIzNSBMIDExMjAgMjM1IEwgMTEyMCA0ODAgTCA5NjAgNDgwIi8+CiAgPHBhdGggY2xhc3M9IndpcmUiIGQ9Ik0gMTM1MCAyODUgTCAxMTQwIDI4NSBMIDExNDAgNTAwIEwgOTYwIDUwMCIvPgoKICA8IS0tIFQ0IHRvIEVTUDMyIC0tPgogIDxwYXRoIGNsYXNzPSJ3aXJlIiBkPSJNIDEzNTAgNjM1IEwgMTEwMCA2MzUgTCAxMTAwIDUzMCBMIDk2MCA1MzAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSAxMzUwIDY4NSBMIDExMjAgNjg1IEwgMTEyMCA1NTAgTCA5NjAgNTUwIi8+CiAgPHBhdGggY2xhc3M9IndpcmUiIGQ9Ik0gMTM1MCA3MzUgTCAxMTQwIDczNSBMIDExNDAgNTcwIEwgOTYwIDU3MCIvPgoKICA8IS0tID09PT09PT09PT09PT09PT09PT09PSBQVVNIIEJVVFRPTlMgKG1hbnVhbCBvdmVycmlkZSwgNHgpID09PT09PT09PT09PT09PT09PT09PSAtLT4KICA8ZyBpZD0iYnV0dG9ucyI+CiAgICA8IS0tIEJUTjEgLS0+CiAgICA8cmVjdCB4PSIzMzAiIHk9IjkwMCIgY2xhc3M9ImJveCIgd2lkdGg9IjkwIiBoZWlnaHQ9IjcwIiByeD0iNiIvPgogICAgPGNpcmNsZSBjeD0iMzc1IiBjeT0iOTM1IiByPSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMzc1IiB5PSI4OTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwtc20iIGZvbnQtd2VpZ2h0PSJib2xkIj5CVE4g4oCUIExhbmUgVDE8L3RleHQ+CiAgICA8dGV4dCB4PSIzNzUiIHk9Ijk5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxibC1zbSI+R1BJTyAzMiAocHVsbC1kb3duKTwvdGV4dD4KCiAgICA8IS0tIEJUTjIgLS0+CiAgICA8cmVjdCB4PSI0NzAiIHk9IjkwMCIgY2xhc3M9ImJveCIgd2lkdGg9IjkwIiBoZWlnaHQ9IjcwIiByeD0iNiIvPgogICAgPGNpcmNsZSBjeD0iNTE1IiBjeT0iOTM1IiByPSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iNTE1IiB5PSI4OTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwtc20iIGZvbnQtd2VpZ2h0PSJib2xkIj5CVE4g4oCUIExhbmUgVDI8L3RleHQ+CiAgICA8dGV4dCB4PSI1MTUiIHk9Ijk5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxibC1zbSI+R1BJTyAzMyAocHVsbC1kb3duKTwvdGV4dD4KCiAgICA8IS0tIEJUTjMgLS0+CiAgICA8cmVjdCB4PSIxMDQwIiB5PSI5MDAiIGNsYXNzPSJib3giIHdpZHRoPSI5MCIgaGVpZ2h0PSI3MCIgcng9IjYiLz4KICAgIDxjaXJjbGUgY3g9IjEwODUiIGN5PSI5MzUiIHI9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMwRjMzMjAiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgICA8dGV4dCB4PSIxMDg1IiB5PSI4OTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwtc20iIGZvbnQtd2VpZ2h0PSJib2xkIj5CVE4g4oCUIExhbmUgVDM8L3RleHQ+CiAgICA8dGV4dCB4PSIxMDg1IiB5PSI5OTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwtc20iPkdQSU8gMzQgKHB1bGwtZG93bik8L3RleHQ+CgogICAgPCEtLSBCVE40IC0tPgogICAgPHJlY3QgeD0iMTE4MCIgeT0iOTAwIiBjbGFzcz0iYm94IiB3aWR0aD0iOTAiIGhlaWdodD0iNzAiIHJ4PSI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIxMjI1IiBjeT0iOTM1IiByPSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogICAgPHRleHQgeD0iMTIyNSIgeT0iODk1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibGJsLXNtIiBmb250LXdlaWdodD0iYm9sZCI+QlROIOKAlCBMYW5lIFQ0PC90ZXh0PgogICAgPHRleHQgeD0iMTIyNSIgeT0iOTkwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibGJsLXNtIj5HUElPIDM1IChwdWxsLWRvd24pPC90ZXh0PgogIDwvZz4KCiAgPCEtLSBCdXR0b24gd2lyZXMgdG8gRVNQMzIgLS0+CiAgPHBhdGggY2xhc3M9IndpcmUiIGQ9Ik0gMzc1IDkwMCBMIDM3NSA4NTAgTCA3MDAgODUwIEwgNzAwIDYzMCBMIDY0MCA2MzAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSA1MTUgOTAwIEwgNTE1IDgzMCBMIDcyMCA4MzAgTCA3MjAgNjEwIEwgNjQwIDYxMCIvPgogIDxwYXRoIGNsYXNzPSJ3aXJlIiBkPSJNIDEwODUgOTAwIEwgMTA4NSA4NTAgTCA5MDAgODUwIEwgOTAwIDYzMCBMIDk2MCA2MzAiLz4KICA8cGF0aCBjbGFzcz0id2lyZSIgZD0iTSAxMjI1IDkwMCBMIDEyMjUgODMwIEwgODgwIDgzMCBMIDg4MCA2MTAgTCA5NjAgNjEwIi8+CgogIDwhLS0gQnV0dG9uIHB1bGwtZG93biB0byBHTkQgcmFpbCAtLT4KICA8bGluZSB4MT0iMzMwIiB5MT0iOTcwIiB4Mj0iMTI3MCIgeTI9Ijk3MCIgY2xhc3M9IndpcmUtZ25kIiBzdHJva2UtZGFzaGFycmF5PSI0LDMiLz4KICA8dGV4dCB4PSI4MDAiIHk9IjEwMTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJsYmwtc20iPkNvbW1vbiBHTkQgcmFpbCDigJQgYWxsIGJ1dHRvbiBsZWdzIHB1bGxlZCBMT1cgd2hlbiBub3QgcHJlc3NlZCAoMTBrzqkgcHVsbC1kb3duIGVhY2gpPC90ZXh0PgoKICA8IS0tID09PT09PT09PT09PT09PT09PT09PSBQT1dFUiBSQUlMUyA9PT09PT09PT09PT09PT09PT09PT0gLS0+CiAgPHRleHQgeD0iODAwIiB5PSIxMDU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibGJsLXNtIiBmaWxsPSIjQzk2MDFBIj41ViAoVklOKSDihpIgcG93ZXIgcmFpbCBmb3IgTEVEcyDCtyAzVjMg4oaSIGxvZ2ljIHJlZmVyZW5jZSDCtyBHTkQg4oaSIGNvbW1vbiBncm91bmQgZm9yIGFsbCBtb2R1bGVzPC90ZXh0PgoKICA8IS0tIExlZ2VuZCAtLT4KICA8ZyBpZD0ibGVnZW5kIj4KICAgIDxyZWN0IHg9IjYwIiB5PSIxMDc1IiB3aWR0aD0iMTQ4MCIgaGVpZ2h0PSI2MCIgZmlsbD0iI0Y0RjdGNSIgc3Ryb2tlPSIjMEYzMzIwIiBzdHJva2Utd2lkdGg9IjEiLz4KICAgIDxjaXJjbGUgY3g9IjkwIiBjeT0iMTA5NSIgcj0iOCIgZmlsbD0iI0U1NkI2QiIvPjx0ZXh0IHg9IjEwNSIgeT0iMTA5OSIgY2xhc3M9ImxibC1zbSI+UmVkIExFRDwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEwOTUiIHI9IjgiIGZpbGw9IiNFOEEzM0QiLz48dGV4dCB4PSIyMTUiIHk9IjEwOTkiIGNsYXNzPSJsYmwtc20iPlllbGxvdyBMRUQ8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSIxMDk1IiByPSI4IiBmaWxsPSIjNENFMDdBIi8+PHRleHQgeD0iMzM1IiB5PSIxMDk5IiBjbGFzcz0ibGJsLXNtIj5HcmVlbiBMRUQ8L3RleHQ+CiAgICA8cmVjdCB4PSI0NDAiIHk9IjEwODgiIHdpZHRoPSIxNiIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwRjMzMjAiLz48dGV4dCB4PSI0NjUiIHk9IjEwOTkiIGNsYXNzPSJsYmwtc20iPjMzMM6pIGN1cnJlbnQtbGltaXQgcmVzaXN0b3I8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI2ODAiIGN5PSIxMDk1IiByPSI4IiBmaWxsPSIjZmZmIiBzdHJva2U9IiMwRjMzMjAiLz48dGV4dCB4PSI2OTUiIHk9IjEwOTkiIGNsYXNzPSJsYmwtc20iPlB1c2ggYnV0dG9uIChtb21lbnRhcnksIHB1bGwtZG93bik8L3RleHQ+CiAgICA8bGluZSB4MT0iOTYwIiB5MT0iMTA5NSIgeDI9IjEwMDAiIHkyPSIxMDk1IiBjbGFzcz0id2lyZSIvPjx0ZXh0IHg9IjEwMTAiIHk9IjEwOTkiIGNsYXNzPSJsYmwtc20iPkdQSU8gc2lnbmFsIHdpcmU8L3RleHQ+CiAgICA8bGluZSB4MT0iMTE4MCIgeTE9IjEwOTUiIHgyPSIxMjIwIiB5Mj0iMTA5NSIgY2xhc3M9IndpcmUtZ25kIiBzdHJva2UtZGFzaGFycmF5PSI0LDMiLz48dGV4dCB4PSIxMjMwIiB5PSIxMDk5IiBjbGFzcz0ibGJsLXNtIj5Hcm91bmQgcmFpbDwvdGV4dD4KICA8L2c+Cjwvc3ZnPgo=" alt="ESP32 traffic light circuit diagram" style="width:100%; height:auto; border-radius:8px; display:block;">
+      </div>
+      <div class="card">
+        <h3>Why this wiring works</h3>
+        <ul>
+          <li>Each light module uses <strong>3 GPIOs</strong> (Red/Yellow/Green) — 4 modules × 3 pins = 12 output pins total</li>
+          <li>Each push button uses <strong>1 GPIO input</strong> with a pull-down resistor, so the pin reads a defined LOW when not pressed and HIGH when pressed</li>
+          <li>All LED cathodes and button pull-downs share a <strong>common GND rail</strong> back to the ESP32</li>
+          <li>330Ω resistors in series with every LED protect against excess current from the 3.3V GPIO logic level</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section class="block" id="components">
+      <div class="block-head">
+        <span class="block-num">Q2.2</span><h2>Components & Equipment</h2>
+        <span class="block-marks">10 marks</span>
+      </div>
+      <table>
+        <tr><th>Component</th><th>Role</th></tr>
+        <tr><td>ESP32</td><td>Main controller — runs the state-machine logic, handles all GPIO & Wi-Fi</td></tr>
+        <tr><td>12 × LEDs (R/Y/G × 4)</td><td>Traffic signal indicators for lanes T1–T4</td></tr>
+        <tr><td>4 × Push buttons</td><td>Manual lane-override selection, wired to interrupt pins</td></tr>
+        <tr><td>Resistors (220–330 Ω)</td><td>Current-limit each LED to a safe value</td></tr>
+        <tr><td>Pull-down resistors</td><td>Hold button-input pins at a defined LOW when not pressed</td></tr>
+        <tr><td>Breadboard / PCB</td><td>Physical circuit assembly</td></tr>
+        <tr><td>5V power supply (USB)</td><td>Powers ESP32 and connected peripherals</td></tr>
+        <tr><td>Jumper wires</td><td>Point-to-point connections</td></tr>
+      </table>
+    </section>
+
+    <!-- CODE READING -->
+    <section class="block" id="code">
+      <div class="block-head">
+        <span class="block-num">Q3.1</span><h2>Reading the Relay Code</h2>
+        <span class="block-marks">10 marks</span>
+      </div>
+      <p class="block-intro">Click each highlighted line below to reveal what the examiner wants you to say about it.</p>
+      <pre><span class="kw">const</span> <span class="kw">int</span> relay = <span class="num">26</span>;
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+  <span class="fn">pinMode</span>(relay, OUTPUT);
+}
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(relay, LOW);
+  Serial.<span class="fn">println</span>(<span class="str">"Current Flowing"</span>);
+  <span class="fn">delay</span>(<span class="num">5000</span>);
+  <span class="fn">digitalWrite</span>(relay, HIGH);
+  Serial.<span class="fn">println</span>(<span class="str">"Current not Flowing"</span>);
+  <span class="fn">delay</span>(<span class="num">5000</span>);
+}</pre>
+      <div class="line-explain">
+        <code>const int relay = 26;</code><span>Assigns GPIO 26 as the pin controlling the relay module.</span>
+        <code>Serial.begin(115200);</code><span>Opens serial communication at 115200 baud for debug output on the monitor.</span>
+        <code>pinMode(relay, OUTPUT);</code><span>Configures GPIO 26 as a digital output pin.</span>
+        <code>digitalWrite(relay, LOW);</code><span>Drives GPIO 26 LOW — for a LOW-triggered relay module, this energizes the coil (relay ON).</span>
+        <code>Serial.println("Current Flowing");</code><span>Logs the ON state to the serial monitor.</span>
+        <code>delay(5000);</code><span>Holds the current state for 5 seconds (blocking delay).</span>
+        <code>digitalWrite(relay, HIGH);</code><span>Drives GPIO 26 HIGH — de-energizes the relay coil (relay OFF).</span>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Overall function</h3>
+        <p>The program toggles a relay ON and OFF every 5 seconds in an infinite loop, simulating a load switching on/off repeatedly while logging each transition to the serial monitor. Note this is a <strong>LOW-triggered relay</strong> — a common module type where LOW = energized, which is worth stating explicitly since it's an easy mark to miss.</p>
+      </div>
+    </section>
+
+    <!-- WIFI -->
+    <section class="block" id="wifi">
+      <div class="block-head">
+        <span class="block-num">Q3.2</span><h2>WiFi Access Point Setup</h2>
+        <span class="block-marks">10 marks</span>
+      </div>
+      <p class="block-intro">Setting up the ESP32 as its own Access Point (BSS) so a phone/laptop can connect directly to it — the same pattern your traffic dashboard's AP fallback uses.</p>
+      <pre><span class="kw">#include</span> &lt;WiFi.h&gt;
+
+<span class="kw">const</span> <span class="kw">char</span>* ssid = <span class="str">"ESP32_Traffic_AP"</span>;
+<span class="kw">const</span> <span class="kw">char</span>* password = <span class="str">"12345678"</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="num">115200</span>);
+  WiFi.<span class="fn">softAP</span>(ssid, password);      <span class="cm">// sets up the BSS credentials</span>
+  IPAddress IP = WiFi.<span class="fn">softAPIP</span>();
+  Serial.<span class="fn">print</span>(<span class="str">"AP IP address: "</span>);
+  Serial.<span class="fn">println</span>(IP);              <span class="cm">// prints IP to serial monitor</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+}</pre>
+      <div class="card">
+        <h3>Why this earns full marks</h3>
+        <p><code>WiFi.softAP()</code> is the exact call that establishes the Basic Service Set (BSS) — the SSID + password pair — turning the ESP32 into its own access point rather than joining an existing network. <code>softAPIP()</code> retrieves the IP address assigned to that AP so a client device knows where to connect.</p>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="block" id="quiz">
+      <div class="block-head">
+        <span class="block-num">Check</span><h2>Self-Check Quiz</h2>
+        <span class="block-marks">8 questions</span>
+      </div>
+      <p class="block-intro">Quick recall check before the exam. Your score tracks in the sidebar.</p>
+      <div id="quizContainer"></div>
+    </section>
+
+    <footer>Study guide generated from your CEC320 resit paper · Univ. of Buea, College of Technology · Good luck, Wright.</footer>
+  </main>
+</div>
+
+<script>
+// ===== Nav scroll spy =====
+const sections = document.querySelectorAll('main section[id]');
+const navLinks = document.querySelectorAll('.pin-nav a');
+function onScroll(){
+  let current = sections[0].id;
+  sections.forEach(s=>{
+    if(window.scrollY >= s.offsetTop - 140) current = s.id;
+  });
+  navLinks.forEach(a=>{
+    a.classList.toggle('active', a.dataset.target === current);
+  });
+}
+document.addEventListener('scroll', onScroll);
+onScroll();
+navLinks.forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    document.getElementById(a.dataset.target).scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ===== Traffic light simulator =====
+const lampIds = ['t1-red','t1-yellow','t1-green','t2-red','t2-yellow','t2-green','t3-red','t3-yellow','t3-green','t4-red','t4-yellow','t4-green'];
+function setLamps(onIds){
+  lampIds.forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.toggle('on', onIds.includes(id));
+  });
+}
+const simState = document.getElementById('simState');
+const simDesc = document.getElementById('simDesc');
+
+function stateNormal(){
+  setLamps(['t1-green','t2-green','t3-red','t4-red']);
+  simState.textContent = 'STATE: NORMAL SEQUENCE (15s)';
+  simDesc.textContent = 'T1 & T2 = green, T3 & T4 = red. Default cycle unless overridden.';
+}
+function stateManual(){
+  setLamps(['t1-red','t1-yellow','t1-green','t2-red','t2-yellow','t2-green','t3-red','t3-yellow','t3-green','t4-red','t4-yellow','t4-green']);
+  simState.textContent = 'STATE: MANUAL OVERRIDE';
+  simDesc.textContent = 'Physical button pressed — all lights ON. Waiting for one of 4 push buttons to select which lane opens.';
+}
+function stateLane(lane){
+  const all = ['t1-red','t1-yellow','t1-green','t2-red','t2-yellow','t2-green','t3-red','t3-yellow','t3-green','t4-red','t4-yellow','t4-green'];
+  const on = all.filter(id=>id.startsWith(lane) ? id.endsWith('green') : id.endsWith('red'));
+  setLamps(on);
+  simState.textContent = `STATE: MANUAL — LANE ${lane.toUpperCase()} OPEN`;
+  simDesc.textContent = `Button for ${lane.toUpperCase()} pressed — that lane goes green, all other lanes held red.`;
+}
+document.getElementById('btnNormal').addEventListener('click', stateNormal);
+document.getElementById('btnManual').addEventListener('click', stateManual);
+document.getElementById('btnLane1').addEventListener('click', ()=>stateLane('t1'));
+document.getElementById('btnLane3').addEventListener('click', ()=>stateLane('t3'));
+stateNormal();
+
+// ===== Quiz =====
+const questions = [
+  {q:"Which scheduling approach gives every task a fixed time slice in a circular queue?", opts:["Round Robin","First-Come-First-Served","Priority Preemptive","Shortest Job First"], a:0, fb:"Round Robin cycles tasks through a queue, each getting a fixed quantum before being sent to the back."},
+  {q:"A pacemaker missing its timing deadline is an example of:", opts:["Soft Real-Time failure","Hard Real-Time failure","GPOS scheduling delay","Networked system latency"], a:1, fb:"Missing a deadline in a pacemaker can be fatal — that's the defining trait of Hard RT."},
+  {q:"What does WiFi.softAP() actually configure on the ESP32?", opts:["The client WiFi password only","The BSS credentials (SSID + password) for the ESP32's own access point","The MAC address filter","The Bluetooth pairing code"], a:1, fb:"softAP() sets up the ESP32 as its own access point — establishing the BSS."},
+  {q:"In the relay code, digitalWrite(relay, LOW) turns the relay ON. What type of relay module is this?", opts:["HIGH-triggered","LOW-triggered","Analog-triggered","PWM-triggered"], a:1, fb:"LOW-triggered relay modules energize the coil when the control pin reads LOW — worth stating explicitly for full marks."},
+  {q:"Which is NOT one of the three embedded AI hardware accelerators mentioned in the exam?", opts:["TPU","NPU","GPU","RTU"], a:3, fb:"'RTU' isn't a real accelerator type here — TPU, NPU, and GPU are the three named enablers."},
+  {q:"What is the key difference between RTOS and GPOS scheduling?", opts:["RTOS is always faster overall","RTOS guarantees deterministic, bounded response time; GPOS optimizes average throughput","GPOS is used only in microcontrollers","RTOS cannot run more than one task"], a:1, fb:"RTOS trades average performance for predictability — a guaranteed worst-case response time."},
+  {q:"In the traffic light project, what triggers manual override mode?", opts:["A 15-second timer expiring", "A physical button being activated", "The ESP32 losing WiFi connection", "An ultrasonic sensor detecting a vehicle"], a:1, fb:"The spec states manual mode is triggered by activating the physical button, overriding the normal 15s sequence."},
+  {q:"Streaming video dropping an occasional frame without crashing the app is an example of:", opts:["Hard Real-Time system", "Standalone embedded system", "Soft Real-Time system", "Networked embedded system"], a:2, fb:"A dropped frame degrades quality but the system keeps working — that's Soft Real-Time."},
+];
+const quizContainer = document.getElementById('quizContainer');
+let score = 0;
+const answered = new Set();
+questions.forEach((item, idx)=>{
+  const card = document.createElement('div');
+  card.className = 'quiz-card';
+  const qEl = document.createElement('div');
+  qEl.className = 'quiz-q';
+  qEl.textContent = `${idx+1}. ${item.q}`;
+  card.appendChild(qEl);
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'quiz-opts';
+  const fb = document.createElement('div');
+  fb.className = 'quiz-fb';
+  fb.textContent = item.fb;
+  item.opts.forEach((opt, oIdx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>{
+      if(answered.has(idx)) return;
+      answered.add(idx);
+      const allBtns = optsWrap.querySelectorAll('.quiz-opt');
+      allBtns.forEach((b,i)=>{
+        if(i === item.a) b.classList.add('correct');
+        else if(i === oIdx) b.classList.add('wrong');
+      });
+      if(oIdx === item.a) score++;
+      document.getElementById('scoreLabel').textContent = `${score}/${questions.length}`;
+      document.getElementById('progressFill').style.width = `${(score/questions.length)*100}%`;
+      fb.classList.add('show');
+    });
+    optsWrap.appendChild(btn);
+  });
+  card.appendChild(optsWrap);
+  card.appendChild(fb);
+  quizContainer.appendChild(card);
+});
+</script>
+</body>
+</html>
